@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
+const { register, login, refresh } = require('../controllers/authController')
 
-// TODO: Implement auth routes (register, login, refresh, logout)
+router.post('/register', register)
+router.post('/login', login)
+router.post('/refresh', refresh)
 
 module.exports = router

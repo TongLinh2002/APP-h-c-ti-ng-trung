@@ -1,3 +1,25 @@
 node_modules/
 .env
 *.log
+
+# Build output
+frontend/dist/
+
+# SQLite dev database
+backend/dev.db
+
+# Uploaded files
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# Internal tooling
+.claude/
+.superpowers/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

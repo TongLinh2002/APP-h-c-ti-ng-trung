@@ -1,7 +1,7 @@
 <template>
   <div class="lang-switcher" ref="switcherRef">
     <button class="globe-btn" @click="toggleOpen">
-      🌐 {{ currentLabel }} ▾
+      {{ currentLabel }} ▾
     </button>
     <div v-if="open" class="lang-dropdown">
       <button
@@ -11,7 +11,7 @@
         :class="{ active: locale === lang.code }"
         @click="selectLang(lang.code)"
       >
-        {{ lang.flag }} {{ lang.name }}
+        {{ lang.name }}
         <span v-if="locale === lang.code" class="check">✓</span>
       </button>
     </div>
@@ -27,14 +27,14 @@ const open = ref(false)
 const switcherRef = ref(null)
 
 const langs = [
-  { code: 'en', flag: '🇺🇸', name: 'English' },
-  { code: 'zh', flag: '🇨🇳', name: '中文' },
-  { code: 'vi', flag: '🇻🇳', name: 'Tiếng Việt' },
+  { code: 'en', name: 'English' },
+  { code: 'zh', name: '中文' },
+  { code: 'vi', name: 'Tiếng Việt' },
 ]
 
 const currentLabel = computed(() => {
   const found = langs.find(l => l.code === locale.value)
-  return found ? found.flag + ' ' + found.code.toUpperCase() : '🌐'
+  return found ? found.name : 'Language'
 })
 
 function toggleOpen() {

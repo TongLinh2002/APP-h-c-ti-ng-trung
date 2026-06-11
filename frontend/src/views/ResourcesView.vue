@@ -24,7 +24,7 @@
             <span v-if="doc.hsk_level" class="tag hsk">HSK {{ doc.hsk_level }}</span>
           </div>
         </div>
-        <a :href="'http://localhost:3000' + doc.file_url" target="_blank" class="btn-dl">{{ $t('resources.download') }}</a>
+        <a :href="doc.file_url" target="_blank" class="btn-dl">{{ $t('resources.download') }}</a>
       </li>
     </ul>
   </div>

@@ -45,7 +45,7 @@
             <td>{{ d.title }}</td>
             <td>{{ d.file_type }}</td>
             <td>{{ d.hsk_level || 'Tất cả' }}</td>
-            <td class="url-cell"><a :href="`http://localhost:3000${d.file_url}`" target="_blank">{{ d.file_url }}</a></td>
+            <td class="url-cell"><a :href="d.file_url" target="_blank">{{ d.file_url }}</a></td>
             <td><button class="btn-del" @click="deleteDownload(d.id)">{{ $t('admin.delete') }}</button></td>
           </tr>
         </tbody>

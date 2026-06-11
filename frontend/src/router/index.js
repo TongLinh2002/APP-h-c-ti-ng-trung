@@ -11,6 +11,7 @@ const routes = [
   { path: '/journey', component: () => import('../views/JourneyView.vue'), meta: { requiresAuth: true } },
   { path: '/challenge', component: () => import('../views/ChallengeView.vue'), meta: { requiresAuth: true } },
   { path: '/resources', component: () => import('../views/ResourcesView.vue') },
+  { path: '/admin', component: () => import('../views/AdminView.vue'), meta: { requiresAdmin: true } },
 ]
 
 const router = createRouter({
@@ -20,11 +21,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('accessToken')
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else {
-    next()
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  if (to.meta.requiresAdmin) {
+    if (!token) return next('/login')
+    if (user?.role !== 'admin') return next('/')
   }
+  if (to.meta.requiresAuth && !token) {
+    return next('/login')
+  }
+  next()
 })
 
 export default router
