@@ -1,19 +1,19 @@
 <template>
   <div class="resources-view">
-    <h2>📄 Tài Liệu Học Tập</h2>
-    <p class="subtitle">Tải miễn phí — không cần đăng nhập</p>
+    <h2>📄 {{ $t('resources.title') }}</h2>
+    <p class="subtitle">{{ $t('resources.subtitle') }}</p>
 
     <div class="filter-bar">
-      <label>Lọc theo cấp:
+      <label>{{ $t('resources.filterBy') }}
         <select v-model="selectedLevel" @change="load">
-          <option value="">Tất cả</option>
+          <option value="">{{ $t('resources.all') }}</option>
           <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
         </select>
       </label>
     </div>
 
-    <div v-if="loading" class="loading">Đang tải...</div>
-    <div v-else-if="!downloads.length" class="empty">Chưa có tài liệu nào.</div>
+    <div v-if="loading" class="loading">{{ $t('resources.loading') }}</div>
+    <div v-else-if="!downloads.length" class="empty">{{ $t('resources.empty') }}</div>
     <ul v-else class="downloads-list">
       <li v-for="doc in downloads" :key="doc.id" class="doc-item">
         <div class="doc-info">
@@ -24,21 +24,22 @@
             <span v-if="doc.hsk_level" class="tag hsk">HSK {{ doc.hsk_level }}</span>
           </div>
         </div>
-        <a :href="'http://localhost:3000' + doc.file_url" target="_blank" class="btn-dl">⬇ Tải</a>
+        <a :href="'http://localhost:3000' + doc.file_url" target="_blank" class="btn-dl">{{ $t('resources.download') }}</a>
       </li>
     </ul>
   </div>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { fetchDownloads } from '../services/downloadsService'
 const downloads = ref([])
 const selectedLevel = ref('')
 const loading = ref(true)
-const TYPES = { vocabulary_list: 'Từ vựng', pinyin_chart: 'Bảng Pinyin', slide: 'Slide', other: 'Khác' }
+const { t } = useI18n()
 onMounted(() => load())
 async function load() { loading.value = true; downloads.value = await fetchDownloads(selectedLevel.value || undefined); loading.value = false }
-function typeLabel(t) { return TYPES[t] || t }
+function typeLabel(type) { return t(`resources.types.${type}`, type) }
 </script>
 <style scoped>
 h2 { margin-bottom: 4px; }

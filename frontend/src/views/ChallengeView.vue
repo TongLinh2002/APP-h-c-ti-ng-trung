@@ -1,9 +1,9 @@
 <template>
   <div class="challenge-view">
-    <h2>⚔️ Thử Thách Từ Vựng</h2>
+    <h2>⚔️ {{ $t('challenge.title') }}</h2>
 
     <div v-if="!store.questions.length && !store.result" class="level-select">
-      <p>Chọn cấp HSK để bắt đầu thử thách:</p>
+      <p>{{ $t('challenge.selectLevel') }}</p>
       <div class="level-grid">
         <button v-for="n in 9" :key="n" class="level-btn" :disabled="starting" @click="start(n)">
           HSK {{ n }}
@@ -21,24 +21,26 @@
     </div>
 
     <div v-else-if="store.isFinished && !store.result" class="calculating">
-      Đang tính điểm...
+      {{ $t('challenge.calculating') }}
     </div>
 
     <div v-else-if="store.result" class="result-screen">
       <p class="trophy">🏆</p>
-      <p class="score-big">{{ store.result.score }} điểm</p>
-      <p class="best">Điểm cao nhất: <strong>{{ store.result.best_score }}</strong></p>
-      <p class="correct-count">Đúng: {{ store.result.results.filter(r => r.correct).length }}/{{ store.result.results.length }} câu</p>
-      <button class="btn-retry" @click="store.reset()">Chơi lại</button>
+      <p class="score-big">{{ store.result.score }} {{ $t('challenge.points') }}</p>
+      <p class="best">{{ $t('challenge.bestScore') }} <strong>{{ store.result.best_score }}</strong></p>
+      <p class="correct-count">{{ $t('challenge.correct') }} {{ store.result.results.filter(r => r.correct).length }}/{{ store.result.results.length }} câu</p>
+      <button class="btn-retry" @click="store.reset()">{{ $t('challenge.playAgain') }}</button>
     </div>
   </div>
 </template>
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ChallengeGame from '../components/ChallengeGame.vue'
 import { useChallengeStore } from '../stores/challenge'
 const store = useChallengeStore()
 const starting = ref(false)
+const { t } = useI18n()
 
 async function start(level) { starting.value = true; await store.start(level); starting.value = false }
 async function handleAnswer({ selected_index, time_ms }) {
