@@ -1,17 +1,17 @@
 <template>
   <div class="read-view">
-    <h2>📖 Luyện đọc</h2>
+    <h2>📖 {{ $t('read.title') }}</h2>
 
     <div v-if="!store.currentLesson">
       <div class="filter-bar">
-        <label>Cấp HSK:
+        <label>{{ $t('read.hskLevel') }}
           <select v-model="selectedLevel" @change="loadLessons">
             <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
           </select>
         </label>
       </div>
-      <div v-if="loading" class="loading">Đang tải...</div>
-      <div v-else-if="!store.lessons.length" class="empty">Chưa có bài đọc cho cấp này.</div>
+      <div v-if="loading" class="loading">{{ $t('read.loading') }}</div>
+      <div v-else-if="!store.lessons.length" class="empty">{{ $t('read.empty') }}</div>
       <ul v-else class="lesson-list">
         <li v-for="lesson in store.lessons" :key="lesson.id" class="lesson-item" @click="openLesson(lesson.id)">
           <span class="lesson-icon">📖</span>
@@ -21,7 +21,7 @@
     </div>
 
     <div v-else>
-      <button class="btn-back" @click="store.closeLesson">← Quay lại</button>
+      <button class="btn-back" @click="store.closeLesson">{{ $t('read.back') }}</button>
       <h3>{{ store.currentLesson.title }}</h3>
 
       <div class="reading-content">
@@ -39,7 +39,7 @@
       </div>
 
       <div v-if="!store.result">
-        <h4>Câu hỏi:</h4>
+        <h4>{{ $t('read.questions') }}</h4>
         <QuizCard
           v-for="q in store.currentLesson.questions"
           :key="q.id"
@@ -47,11 +47,11 @@
           :show-result="false"
           @answer="recordAnswer"
         />
-        <button class="btn-primary" @click="submit">Nộp bài</button>
+        <button class="btn-primary" @click="submit">{{ $t('read.submit') }}</button>
       </div>
 
       <div v-else class="result-box">
-        <p class="score">Điểm: <strong>{{ store.result.score }}/100</strong></p>
+        <p class="score">{{ $t('read.score') }} <strong>{{ store.result.score }}/100</strong></p>
         <QuizCard
           v-for="(q, i) in store.currentLesson.questions"
           :key="q.id"
@@ -59,7 +59,7 @@
           :show-result="true"
           :correct-answer="store.result.results[i]?.correct_answer"
         />
-        <button class="btn-primary" @click="store.closeLesson">Chọn bài khác</button>
+        <button class="btn-primary" @click="store.closeLesson">{{ $t('read.chooseAnother') }}</button>
       </div>
     </div>
   </div>
@@ -67,8 +67,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import QuizCard from '../components/QuizCard.vue'
 import { useLessonsStore } from '../stores/lessons'
+
+const { t: $t } = useI18n()
 
 const store = useLessonsStore()
 const selectedLevel = ref(1)
