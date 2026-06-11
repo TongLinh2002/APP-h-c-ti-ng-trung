@@ -1,49 +1,53 @@
 <template>
   <div class="home">
     <div class="hero">
-      <h1>APP Học Tiếng Trung</h1>
-      <p>Học tiếng Trung theo chuẩn HSK 1–9 với phương pháp gamification</p>
+      <h1>{{ $t('home.title') }}</h1>
+      <p>{{ $t('home.subtitle') }}</p>
     </div>
 
     <div class="nav-grid">
       <RouterLink to="/journey" class="nav-card journey">
         <span class="card-icon">🗺️</span>
-        <span class="card-title">Hành trình</span>
-        <span class="card-desc">Lộ trình từ HSK1 đến HSK9</span>
+        <span class="card-title">{{ $t('home.journey') }}</span>
+        <span class="card-desc">{{ $t('home.journeyDesc') }}</span>
       </RouterLink>
       <RouterLink to="/learn" class="nav-card learn">
         <span class="card-icon">📚</span>
-        <span class="card-title">Học từ vựng</span>
-        <span class="card-desc">Flashcard + SRS</span>
+        <span class="card-title">{{ $t('home.learn') }}</span>
+        <span class="card-desc">{{ $t('home.learnDesc') }}</span>
       </RouterLink>
       <RouterLink to="/challenge" class="nav-card challenge">
         <span class="card-icon">⚔️</span>
-        <span class="card-title">Thử thách</span>
-        <span class="card-desc">Game từ vựng có giờ</span>
+        <span class="card-title">{{ $t('home.challenge') }}</span>
+        <span class="card-desc">{{ $t('home.challengeDesc') }}</span>
       </RouterLink>
       <RouterLink to="/listen" class="nav-card listen">
         <span class="card-icon">🎧</span>
-        <span class="card-title">Luyện nghe</span>
-        <span class="card-desc">Bài nghe + trắc nghiệm</span>
+        <span class="card-title">{{ $t('home.listen') }}</span>
+        <span class="card-desc">{{ $t('home.listenDesc') }}</span>
       </RouterLink>
       <RouterLink to="/read" class="nav-card read">
         <span class="card-icon">📖</span>
-        <span class="card-title">Luyện đọc</span>
-        <span class="card-desc">Đọc hiểu + từ vựng</span>
+        <span class="card-title">{{ $t('home.read') }}</span>
+        <span class="card-desc">{{ $t('home.readDesc') }}</span>
       </RouterLink>
       <RouterLink to="/resources" class="nav-card resources">
         <span class="card-icon">📄</span>
-        <span class="card-title">Tài liệu</span>
-        <span class="card-desc">PDF tải xuống miễn phí</span>
+        <span class="card-title">{{ $t('home.resources') }}</span>
+        <span class="card-desc">{{ $t('home.resourcesDesc') }}</span>
       </RouterLink>
       <RouterLink to="/dashboard" class="nav-card dashboard">
         <span class="card-icon">📊</span>
-        <span class="card-title">Tiến độ</span>
-        <span class="card-desc">Streak & thống kê</span>
+        <span class="card-title">{{ $t('home.dashboard') }}</span>
+        <span class="card-desc">{{ $t('home.dashboardDesc') }}</span>
       </RouterLink>
     </div>
   </div>
 </template>
+
+<script setup>
+// i18n is globally available as $t in templates via vue-i18n registration in main.js
+</script>
 
 <style scoped>
 .hero { text-align: center; padding: 48px 0 32px; }
