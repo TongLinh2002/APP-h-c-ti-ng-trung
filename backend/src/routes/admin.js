@@ -7,9 +7,9 @@ const ctrl = require('../controllers/adminController')
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '../../public/uploads'),
-  filename: (req, file, cb) => {
+  filename: (req, file) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, unique + path.extname(file.originalname))
+    return unique + path.extname(file.originalname)
   },
 })
 const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } })

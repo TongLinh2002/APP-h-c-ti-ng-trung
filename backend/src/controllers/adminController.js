@@ -1,5 +1,44 @@
 const { User, Download, Vocabulary, Lesson, LessonQuestion } = require('../models')
 const path = require('path')
+const XLSX = require('xlsx')
+
+function parseVocabXlsx(filePath) {
+  const wb = XLSX.readFile(filePath)
+  const ws = wb.Sheets[wb.SheetNames[0]]
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' })
+  if (rows.length < 2) return []
+
+  // Detect header row — look for keyword hints (case-insensitive)
+  const header = rows[0].map(h => String(h).toLowerCase())
+  const col = (keywords) => {
+    const idx = header.findIndex(h => keywords.some(k => h.includes(k)))
+    return idx >= 0 ? idx : -1
+  }
+  const hanziCol   = col(['汉字','hanzi','词汇','word','chinese']) >= 0 ? col(['汉字','hanzi','词汇','word','chinese']) : 0
+  const pinyinCol  = col(['拼音','pinyin']) >= 0 ? col(['拼音','pinyin']) : 1
+  const meaningCol = col(['越南','nghĩa','meaning','tiếng việt','viet']) >= 0 ? col(['越南','nghĩa','meaning','tiếng việt','viet']) : 2
+  const hskCol     = col(['hsk','级别','level','cấp']) >= 0 ? col(['hsk','级别','level','cấp']) : 3
+  const sentenceCol = col(['例句','sentence','ví dụ','câu']) >= 0 ? col(['例句','sentence','ví dụ','câu']) : -1
+  const sentPinyinCol = col(['例句拼音','sentence pinyin','câu pinyin']) >= 0 ? col(['例句拼音','sentence pinyin','câu pinyin']) : -1
+
+  const words = []
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]
+    const hanzi = String(r[hanziCol] || '').trim()
+    if (!hanzi) continue
+    const hskRaw = r[hskCol]
+    const hsk = parseInt(hskRaw) || null
+    words.push({
+      hanzi,
+      pinyin: String(r[pinyinCol] || '').trim(),
+      meaning_vi: String(r[meaningCol] || '').trim(),
+      hsk_level: hsk,
+      example_sentence: sentenceCol >= 0 ? String(r[sentenceCol] || '').trim() : '',
+      example_pinyin: sentPinyinCol >= 0 ? String(r[sentPinyinCol] || '').trim() : '',
+    })
+  }
+  return words
+}
 
 // ── USERS ───────────────────────────────────────────────────────────────────
 
@@ -45,7 +84,24 @@ async function createDownload(req, res) {
     file_type,
     hsk_level: hsk_level ? parseInt(hsk_level) : null,
   })
-  res.status(201).json(download)
+
+  // Auto-import vocabulary when uploading a vocabulary list xlsx/xls
+  let imported = 0
+  if (req.file && file_type === 'vocabulary_list') {
+    const ext = path.extname(req.file.originalname).toLowerCase()
+    if (ext === '.xlsx' || ext === '.xls') {
+      const filePath = req.file.path
+      const words = parseVocabXlsx(filePath)
+      if (words.length > 0) {
+        const hskDefault = hsk_level ? parseInt(hsk_level) : null
+        const toInsert = words.map(w => ({ ...w, hsk_level: w.hsk_level || hskDefault }))
+        await Vocabulary.bulkCreate(toInsert, { ignoreDuplicates: true })
+        imported = words.length
+      }
+    }
+  }
+
+  res.status(201).json({ ...download.toJSON(), imported })
 }
 
 async function updateDownload(req, res) {

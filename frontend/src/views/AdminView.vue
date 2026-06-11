@@ -188,10 +188,12 @@ async function submitDownload() {
     if (dlForm.value.hsk_level) fd.append('hsk_level', dlForm.value.hsk_level)
     if (dlForm.value.file) fd.append('file', dlForm.value.file)
     else fd.append('file_url', dlForm.value.file_url)
-    await api.post('/admin/downloads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-    dlMsg.value = { type: 'success', text: 'Đã thêm tài liệu!' }
+    const { data } = await api.post('/admin/downloads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const importNote = data.imported > 0 ? ` Đã nhập ${data.imported} từ vựng vào database!` : ''
+    dlMsg.value = { type: 'success', text: `Đã thêm tài liệu!${importNote}` }
     dlForm.value = { title: '', description: '', file_url: '', file_type: '', hsk_level: '', file: null }
     await loadDownloads()
+    if (data.imported > 0) await loadVocab()
   } catch (e) {
     dlMsg.value = { type: 'error', text: e.response?.data?.message || 'Lỗi khi thêm tài liệu' }
   }
