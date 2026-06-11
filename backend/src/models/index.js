@@ -1,0 +1,26 @@
+const User = require('./User')
+const Vocabulary = require('./Vocabulary')
+const UserVocabularyProgress = require('./UserVocabularyProgress')
+const Lesson = require('./Lesson')
+const LessonQuestion = require('./LessonQuestion')
+const UserLessonHistory = require('./UserLessonHistory')
+const UserChallengeScore = require('./UserChallengeScore')
+const Download = require('./Download')
+
+User.hasMany(UserVocabularyProgress, { foreignKey: 'user_id' })
+Vocabulary.hasMany(UserVocabularyProgress, { foreignKey: 'vocabulary_id' })
+UserVocabularyProgress.belongsTo(User, { foreignKey: 'user_id' })
+UserVocabularyProgress.belongsTo(Vocabulary, { foreignKey: 'vocabulary_id' })
+
+Lesson.hasMany(LessonQuestion, { foreignKey: 'lesson_id', as: 'questions' })
+LessonQuestion.belongsTo(Lesson, { foreignKey: 'lesson_id' })
+
+User.hasMany(UserLessonHistory, { foreignKey: 'user_id' })
+Lesson.hasMany(UserLessonHistory, { foreignKey: 'lesson_id' })
+UserLessonHistory.belongsTo(User, { foreignKey: 'user_id' })
+UserLessonHistory.belongsTo(Lesson, { foreignKey: 'lesson_id' })
+
+User.hasMany(UserChallengeScore, { foreignKey: 'user_id' })
+UserChallengeScore.belongsTo(User, { foreignKey: 'user_id' })
+
+module.exports = { User, Vocabulary, UserVocabularyProgress, Lesson, LessonQuestion, UserLessonHistory, UserChallengeScore, Download }
