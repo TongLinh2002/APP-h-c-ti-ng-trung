@@ -1,26 +1,26 @@
 <template>
   <div class="auth-page">
     <div class="auth-card">
-      <h2>Đăng ký</h2>
+      <h2>{{ $t('auth.register') }}</h2>
       <form @submit.prevent="handleRegister">
         <div class="form-group">
-          <label>Tên hiển thị</label>
-          <input v-model="displayName" type="text" placeholder="Tên của bạn" />
+          <label>{{ $t('auth.displayName') }}</label>
+          <input v-model="displayName" type="text" :placeholder="$t('auth.displayNamePlaceholder')" />
         </div>
         <div class="form-group">
-          <label>Email</label>
+          <label>{{ $t('auth.email') }}</label>
           <input v-model="email" type="email" placeholder="email@example.com" required />
         </div>
         <div class="form-group">
-          <label>Mật khẩu</label>
-          <input v-model="password" type="password" placeholder="Ít nhất 6 ký tự" required minlength="6" />
+          <label>{{ $t('auth.password') }}</label>
+          <input v-model="password" type="password" :placeholder="$t('auth.passwordPlaceholder')" required minlength="6" />
         </div>
         <p v-if="error" class="error-msg">{{ error }}</p>
         <button type="submit" class="btn-primary" :disabled="loading">
-          {{ loading ? 'Đang đăng ký...' : 'Đăng ký' }}
+          {{ loading ? $t('auth.registering') : $t('auth.register') }}
         </button>
       </form>
-      <p class="auth-link">Đã có tài khoản? <RouterLink to="/login">Đăng nhập</RouterLink></p>
+      <p class="auth-link">{{ $t('auth.hasAccount') }} <RouterLink to="/login">{{ $t('auth.login') }}</RouterLink></p>
     </div>
   </div>
 </template>
@@ -28,6 +28,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 
 const displayName = ref('')
@@ -37,6 +38,7 @@ const error = ref('')
 const loading = ref(false)
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 async function handleRegister() {
   error.value = ''
@@ -45,7 +47,7 @@ async function handleRegister() {
     await authStore.registerAction(email.value, password.value, displayName.value)
     router.push('/dashboard')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Đăng ký thất bại'
+    error.value = e.response?.data?.message || t('auth.registerFailed')
   } finally {
     loading.value = false
   }
