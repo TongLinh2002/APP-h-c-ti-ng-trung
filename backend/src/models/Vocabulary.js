@@ -9,6 +9,8 @@ const Vocabulary = sequelize.define('Vocabulary', {
   example_pinyin: { type: DataTypes.STRING(500) },
   audio_url: { type: DataTypes.STRING },
   hsk_level: { type: DataTypes.TINYINT, allowNull: false },
+}, {
+  indexes: [{ unique: true, fields: ['hanzi', 'hsk_level'] }]
 })
 
 module.exports = Vocabulary

@@ -13,7 +13,7 @@ UserVocabularyProgress.belongsTo(User, { foreignKey: 'user_id' })
 UserVocabularyProgress.belongsTo(Vocabulary, { foreignKey: 'vocabulary_id' })
 
 Lesson.hasMany(LessonQuestion, { foreignKey: 'lesson_id', as: 'questions' })
-LessonQuestion.belongsTo(Lesson, { foreignKey: 'lesson_id' })
+LessonQuestion.belongsTo(Lesson, { foreignKey: 'lesson_id', as: 'lesson' })
 
 User.hasMany(UserLessonHistory, { foreignKey: 'user_id' })
 Lesson.hasMany(UserLessonHistory, { foreignKey: 'lesson_id' })
