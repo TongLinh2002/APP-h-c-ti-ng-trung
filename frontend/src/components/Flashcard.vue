@@ -3,7 +3,7 @@
     <div class="flashcard" :class="{ flipped }" @click="flip">
       <div class="card-face card-front">
         <p class="hanzi">{{ card.Vocabulary?.hanzi }}</p>
-        <p class="hint">Nhấn để xem nghĩa ↓</p>
+        <p class="hint">{{ $t('flashcard.hint') }}</p>
       </div>
       <div class="card-face card-back">
         <p class="hanzi">{{ card.Vocabulary?.hanzi }}</p>
@@ -16,16 +16,19 @@
     </div>
 
     <div v-if="flipped" class="rating-row">
-      <button class="btn-rating forget" @click.stop="$emit('rate', 0)">😵 Quên</button>
-      <button class="btn-rating hard"   @click.stop="$emit('rate', 1)">😓 Khó</button>
-      <button class="btn-rating ok"     @click.stop="$emit('rate', 2)">🙂 Ổn</button>
-      <button class="btn-rating easy"   @click.stop="$emit('rate', 3)">😄 Dễ</button>
+      <button class="btn-rating forget" @click.stop="$emit('rate', 0)">{{ $t('flashcard.forget') }}</button>
+      <button class="btn-rating hard"   @click.stop="$emit('rate', 1)">{{ $t('flashcard.hard') }}</button>
+      <button class="btn-rating ok"     @click.stop="$emit('rate', 2)">{{ $t('flashcard.ok') }}</button>
+      <button class="btn-rating easy"   @click.stop="$emit('rate', 3)">{{ $t('flashcard.easy') }}</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 const props = defineProps({ card: Object })
 defineEmits(['rate'])
 const flipped = ref(false)

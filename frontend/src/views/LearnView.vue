@@ -1,13 +1,13 @@
 <template>
   <div class="learn-view">
-    <h2>📚 Học từ vựng</h2>
+    <h2>📚 {{ $t('learn.title') }}</h2>
 
-    <div v-if="loading" class="loading">Đang tải...</div>
+    <div v-if="loading" class="loading">{{ $t('learn.loading') }}</div>
 
     <div v-else-if="store.sessionDone" class="session-done">
       <p class="done-icon">🎉</p>
-      <p>Hoàn thành phiên học hôm nay!</p>
-      <button class="btn-primary" @click="reload">Học lại</button>
+      <p>{{ $t('learn.sessionDone') }}</p>
+      <button class="btn-primary" @click="reload">{{ $t('learn.studyAgain') }}</button>
     </div>
 
     <div v-else-if="store.currentCard">
@@ -19,17 +19,19 @@
     </div>
 
     <div v-else class="empty-state">
-      <p>🎊 Không có thẻ nào cần ôn hôm nay!</p>
-      <p class="sub">Quay lại sau để ôn tập tiếp.</p>
+      <p>{{ $t('learn.noCards') }}</p>
+      <p class="sub">{{ $t('learn.noCardsSub') }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Flashcard from '../components/Flashcard.vue'
 import { useVocabularyStore } from '../stores/vocabulary'
 
+const { t } = useI18n()
 const store = useVocabularyStore()
 const loading = ref(true)
 
