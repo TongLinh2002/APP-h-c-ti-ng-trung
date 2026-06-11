@@ -14,14 +14,21 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } })
 
+function uploadSingle(req, res, next) {
+  upload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ message: err.message || 'Lỗi upload file' })
+    next()
+  })
+}
+
 router.use(verifyAdmin)
 
 router.get('/users', ctrl.listUsers)
 router.patch('/users/:id/role', ctrl.updateUserRole)
 
 router.get('/downloads', ctrl.listDownloads)
-router.post('/downloads', upload.single('file'), ctrl.createDownload)
-router.put('/downloads/:id', upload.single('file'), ctrl.updateDownload)
+router.post('/downloads', uploadSingle, ctrl.createDownload)
+router.put('/downloads/:id', uploadSingle, ctrl.updateDownload)
 router.delete('/downloads/:id', ctrl.deleteDownload)
 
 router.get('/vocabulary', ctrl.listVocabulary)

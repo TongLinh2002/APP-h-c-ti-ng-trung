@@ -29,7 +29,7 @@
         <div class="form-row">
           <input v-model="dlForm.file_url" placeholder="URL file (nếu không upload)" />
           <label class="file-label">
-            <input type="file" accept=".pdf,.zip,.pptx,.docx" @change="onFileChange" />
+            <input type="file" accept=".pdf,.zip,.pptx,.docx,.xlsx,.xls" @change="onFileChange" />
             {{ dlForm.file ? dlForm.file.name : 'Chọn file để upload' }}
           </label>
         </div>
