@@ -1,28 +1,28 @@
 <template>
   <div class="dashboard">
-    <h2>📊 Tiến độ học</h2>
+    <h2>📊 {{ $t('dashboard.title') }}</h2>
 
-    <div v-if="loading" class="loading">Đang tải...</div>
+    <div v-if="loading" class="loading">{{ $t('dashboard.loading') }}</div>
     <div v-else>
       <div class="stats-row">
         <div class="stat-card">
           <p class="stat-num">{{ store.totalLearned }}</p>
-          <p class="stat-label">Từ đã học</p>
+          <p class="stat-label">{{ $t('dashboard.totalLearned') }}</p>
         </div>
         <div class="stat-card fire">
           <p class="stat-num">{{ store.streak }} 🔥</p>
-          <p class="stat-label">Ngày liên tiếp</p>
+          <p class="stat-label">{{ $t('dashboard.streak') }}</p>
         </div>
       </div>
 
-      <h3>Tiến độ theo cấp HSK</h3>
+      <h3>{{ $t('dashboard.hskProgress') }}</h3>
       <div v-for="n in 9" :key="n" class="level-row">
         <span class="level-label">HSK {{ n }}</span>
         <ProgressBar :percent="getLevelPercent(n)" />
         <span class="level-count">{{ getLevelCount(n) }}/{{ hskTotals[n] }}</span>
       </div>
 
-      <h3>Hoạt động 7 ngày qua</h3>
+      <h3>{{ $t('dashboard.weeklyActivity') }}</h3>
       <div class="weekly-chart">
         <div v-for="day in last7Days" :key="day.date" class="day-col">
           <div class="day-bar-wrap">
@@ -37,8 +37,11 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProgressBar from '../components/ProgressBar.vue'
 import { useProgressStore } from '../stores/progress'
+
+const { t } = useI18n()
 
 const store = useProgressStore()
 const loading = ref(true)
