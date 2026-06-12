@@ -274,7 +274,7 @@ async function submitDownload() {
     if (dlForm.value.hsk_level) fd.append('hsk_level', dlForm.value.hsk_level)
     if (dlForm.value.file) fd.append('file', dlForm.value.file)
     else fd.append('file_url', dlForm.value.file_url)
-    const { data } = await api.post('/admin/downloads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const { data } = await api.post('/admin/downloads', fd)
     let importNote = ''
     if (data.imported > 0) {
       const levelSummary = Object.entries(data.byLevel)
@@ -328,7 +328,7 @@ async function previewImport() {
   try {
     const fd = new FormData()
     fd.append('file', importFile.value)
-    const { data } = await api.post('/admin/vocabulary/preview', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const { data } = await api.post('/admin/vocabulary/preview', fd)
     importPreview.value = data
     activeSheetIdx.value = 0
   } catch (e) {

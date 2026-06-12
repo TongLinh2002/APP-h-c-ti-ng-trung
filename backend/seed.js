@@ -138,7 +138,13 @@ async function seed() {
   await sequelize.close()
 }
 
-seed().catch((err) => {
-  console.error('Seed failed:', err)
-  process.exit(1)
-})
+// Chạy trực tiếp: node seed.js
+// Dùng như module: require('./seed')
+if (require.main === module) {
+  seed().catch((err) => {
+    console.error('Seed failed:', err)
+    process.exit(1)
+  })
+}
+
+module.exports = seed
