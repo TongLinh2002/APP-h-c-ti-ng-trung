@@ -1,6 +1,5 @@
 const { Exam, ExamSection, ExamQuestion } = require('../models')
-// Use lib path directly — avoids the test-file read that main index.js triggers
-const pdfParse = require('pdf-parse/lib/pdf-parse.js')
+const pdfParse = require('pdf-parse')
 
 // ── PDF parsing helpers ──────────────────────────────────────────────────────
 
