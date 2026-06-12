@@ -27,8 +27,6 @@ export default {
     journey: '学习路线', journeyDesc: 'HSK1到HSK9的学习路径',
     learn: '词汇学习', learnDesc: '闪卡 + 间隔重复',
     challenge: '挑战', challengeDesc: '限时词汇游戏',
-    listen: '听力练习', listenDesc: '听力 + 理解',
-    read: '阅读练习', readDesc: '阅读 + 词汇',
     resources: '学习资料', resourcesDesc: '免费PDF下载',
     dashboard: '学习进度', dashboardDesc: '连续学习 & 统计',
     hsk: 'HSK', hskDesc: 'HSK 1–9 考试',
@@ -58,7 +56,7 @@ export default {
   },
   exam: {
     hskTitle: 'HSK考试', hskkTitle: 'HSKK考试',
-    filterLevel: 'HSK级别:', loading: '加载中...', empty: '该级别暂无考题。',
+    loading: '加载中...', empty: '该级别暂无考题。',
     minutes: '分钟', start: '开始考试', timeLeft: '剩余时间:',
     section: '部分', submit: '提交',
     confirmSubmit: '确认提交？提交后无法修改。',

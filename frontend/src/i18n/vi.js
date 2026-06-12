@@ -27,8 +27,6 @@ export default {
     journey: 'Hành trình', journeyDesc: 'Lộ trình từ HSK1 đến HSK9',
     learn: 'Học từ vựng', learnDesc: 'Flashcard + SRS',
     challenge: 'Thử thách', challengeDesc: 'Game từ vựng có giờ',
-    listen: 'Luyện nghe', listenDesc: 'Bài nghe + trắc nghiệm',
-    read: 'Luyện đọc', readDesc: 'Đọc hiểu + từ vựng',
     resources: 'Tài liệu', resourcesDesc: 'PDF tải xuống miễn phí',
     dashboard: 'Tiến độ', dashboardDesc: 'Streak & thống kê',
     hsk: 'HSK', hskDesc: 'Đề thi HSK 1–9',
@@ -58,7 +56,7 @@ export default {
   },
   exam: {
     hskTitle: 'Đề thi HSK', hskkTitle: 'Đề thi HSKK',
-    filterLevel: 'Cấp HSK:', loading: 'Đang tải...', empty: 'Chưa có đề thi cho cấp này.',
+    loading: 'Đang tải...', empty: 'Chưa có đề thi cho cấp này.',
     minutes: 'phút', start: 'Bắt đầu làm', timeLeft: 'Thời gian còn lại:',
     section: 'Phần', submit: 'Nộp bài',
     confirmSubmit: 'Xác nhận nộp bài? Bạn chưa thể chỉnh sửa sau khi nộp.',

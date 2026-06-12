@@ -27,8 +27,6 @@ export default {
     journey: 'Journey', journeyDesc: 'Path from HSK1 to HSK9',
     learn: 'Vocabulary', learnDesc: 'Flashcard + SRS',
     challenge: 'Challenge', challengeDesc: 'Timed vocabulary game',
-    listen: 'Listening', listenDesc: 'Audio + comprehension',
-    read: 'Reading', readDesc: 'Reading + vocabulary',
     resources: 'Resources', resourcesDesc: 'Free PDF downloads',
     dashboard: 'Progress', dashboardDesc: 'Streak & statistics',
     hsk: 'HSK', hskDesc: 'HSK 1–9 Exams',
@@ -58,7 +56,7 @@ export default {
   },
   exam: {
     hskTitle: 'HSK Exams', hskkTitle: 'HSKK Exams',
-    filterLevel: 'HSK Level:', loading: 'Loading...', empty: 'No exams for this level.',
+    loading: 'Loading...', empty: 'No exams for this level.',
     minutes: 'min', start: 'Start Exam', timeLeft: 'Time left:',
     section: 'Section', submit: 'Submit',
     confirmSubmit: 'Submit exam? You cannot edit answers after submitting.',
