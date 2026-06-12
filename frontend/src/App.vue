@@ -1,7 +1,7 @@
 <template>
   <SakuraBackground />
   <nav class="navbar">
-    <RouterLink to="/" class="nav-brand">学</RouterLink>
+    <RouterLink to="/">{{ $t('nav.home') }}</RouterLink>
 
     <!-- Links for logged-in users -->
     <template v-if="authStore.isLoggedIn">
@@ -65,15 +65,6 @@ body {
   gap: 4px;
   flex-wrap: wrap;
   min-height: 52px;
-}
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: white !important;
-  text-decoration: none;
-  padding: 8px 10px !important;
-  margin-right: 4px;
-  letter-spacing: 1px;
 }
 .navbar a {
   color: white;
