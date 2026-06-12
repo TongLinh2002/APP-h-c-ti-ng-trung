@@ -34,8 +34,10 @@ export default {
   learn: {
     title: 'Học từ vựng', loading: 'Đang tải...',
     sessionDone: 'Hoàn thành phiên học hôm nay!', studyAgain: 'Học lại',
-    noCards: '🎊 Không có thẻ nào cần ôn hôm nay!',
+    noCards: 'Không có thẻ nào cần ôn hôm nay!',
     noCardsSub: 'Quay lại sau để ôn tập tiếp.',
+    review: 'ôn tập', new: 'từ mới',
+    newWord: 'Từ mới', reviewWord: 'Ôn tập',
   },
   flashcard: {
     hint: 'Nhấn để xem nghĩa ↓',

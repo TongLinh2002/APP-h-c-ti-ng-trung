@@ -34,8 +34,10 @@ export default {
   learn: {
     title: 'Vocabulary', loading: 'Loading...',
     sessionDone: "Today's session complete!", studyAgain: 'Study Again',
-    noCards: '🎊 No cards due for review today!',
+    noCards: 'No cards due for review today!',
     noCardsSub: 'Come back later for more practice.',
+    review: 'review', new: 'new',
+    newWord: 'New', reviewWord: 'Review',
   },
   flashcard: {
     hint: 'Tap to reveal ↓',

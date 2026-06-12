@@ -1,5 +1,5 @@
 const { Op } = require('sequelize')
-const { Vocabulary, UserVocabularyProgress } = require('../models')
+const { Vocabulary, UserVocabularyProgress, User } = require('../models')
 const { calculateNextReview } = require('../utils/srs')
 
 async function getVocabulary(req, res) {
@@ -13,13 +13,41 @@ async function getReviewCards(req, res) {
   const userId = req.userId
   const now = new Date()
 
+  // Due cards (SRS scheduled review)
   const dueCards = await UserVocabularyProgress.findAll({
     where: { user_id: userId, next_review_at: { [Op.lte]: now } },
     include: [{ model: Vocabulary }],
     limit: 20,
   })
 
-  res.json(dueCards)
+  // New cards — vocabulary not yet studied, up to (20 - dueCards.length)
+  const newLimit = Math.max(0, 20 - dueCards.length)
+  let newCardWrapped = []
+
+  if (newLimit > 0) {
+    const user = await User.findByPk(userId, { attributes: ['current_hsk_level'] })
+    const hskLevel = user?.current_hsk_level || 1
+
+    const seenRows = await UserVocabularyProgress.findAll({
+      where: { user_id: userId },
+      attributes: ['vocabulary_id'],
+    })
+    const seenIds = seenRows.map(r => r.vocabulary_id)
+
+    const whereClause = { hsk_level: { [Op.lte]: hskLevel } }
+    if (seenIds.length > 0) whereClause.id = { [Op.notIn]: seenIds }
+
+    const newCards = await Vocabulary.findAll({
+      where: whereClause,
+      limit: newLimit,
+      order: [['hsk_level', 'ASC'], ['id', 'ASC']],
+    })
+
+    // Wrap to same shape as dueCards so Flashcard component works unchanged
+    newCardWrapped = newCards.map(v => ({ Vocabulary: v.toJSON(), isNew: true }))
+  }
+
+  res.json([...dueCards, ...newCardWrapped])
 }
 
 async function submitReview(req, res) {
@@ -54,4 +82,29 @@ async function submitReview(req, res) {
   res.json({ message: 'Đã lưu kết quả', next_review_at: next.next_review_at })
 }
 
-module.exports = { getVocabulary, getReviewCards, submitReview }
+async function getSessionStats(req, res) {
+  const userId = req.userId
+  const now = new Date()
+
+  const user = await User.findByPk(userId, { attributes: ['current_hsk_level'] })
+  const hskLevel = user?.current_hsk_level || 1
+
+  const dueCount = await UserVocabularyProgress.count({
+    where: { user_id: userId, next_review_at: { [Op.lte]: now } },
+  })
+
+  const seenRows = await UserVocabularyProgress.findAll({
+    where: { user_id: userId },
+    attributes: ['vocabulary_id'],
+  })
+  const seenIds = seenRows.map(r => r.vocabulary_id)
+
+  const whereClause = { hsk_level: { [Op.lte]: hskLevel } }
+  if (seenIds.length > 0) whereClause.id = { [Op.notIn]: seenIds }
+
+  const newCount = await Vocabulary.count({ where: whereClause })
+
+  res.json({ dueCount, newCount, totalNew: newCount })
+}
+
+module.exports = { getVocabulary, getReviewCards, submitReview, getSessionStats }

@@ -34,8 +34,10 @@ export default {
   learn: {
     title: '词汇学习', loading: '加载中...',
     sessionDone: '今日学习完成！', studyAgain: '再次学习',
-    noCards: '🎊 今天没有需要复习的词汇！',
+    noCards: '今天没有需要复习的词汇！',
     noCardsSub: '稍后再来继续练习。',
+    review: '复习', new: '新词',
+    newWord: '新词', reviewWord: '复习',
   },
   flashcard: {
     hint: '点击查看释义 ↓',
