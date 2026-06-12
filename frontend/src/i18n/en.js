@@ -18,6 +18,12 @@ export default {
   home: {
     title: 'Chinese Learning App',
     subtitle: 'Learn Chinese to HSK 1–9 standard with gamification',
+    getStarted: 'Get Started Free',
+    ctaText: 'Join thousands of learners studying Chinese every day!',
+    feat1Title: 'HSK 1–9 Vocabulary', feat1Desc: 'Study all 9 HSK levels with smart flashcards and detailed notes.',
+    feat2Title: 'Spaced Repetition', feat2Desc: 'SRS scheduling helps you review at the right time for long-term retention.',
+    feat3Title: 'Challenge Mode', feat3Desc: 'Timed multiple-choice quiz to test your vocabulary by HSK level.',
+    feat4Title: 'Listen & Read', feat4Desc: 'Audio lessons with transcripts and interactive reading with vocabulary highlights.',
     journey: 'Journey', journeyDesc: 'Path from HSK1 to HSK9',
     learn: 'Vocabulary', learnDesc: 'Flashcard + SRS',
     challenge: 'Challenge', challengeDesc: 'Timed vocabulary game',

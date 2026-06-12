@@ -18,6 +18,12 @@ export default {
   home: {
     title: 'APP Học Tiếng Trung',
     subtitle: 'Học tiếng Trung theo chuẩn HSK 1–9 với phương pháp gamification',
+    getStarted: 'Bắt đầu miễn phí',
+    ctaText: 'Tham gia cùng hàng ngàn học viên đang học tiếng Trung mỗi ngày!',
+    feat1Title: 'Từ vựng HSK 1–9', feat1Desc: 'Học đủ 9 cấp HSK với flashcard thông minh và ghi chú chi tiết.',
+    feat2Title: 'Ôn tập SRS', feat2Desc: 'Hệ thống nhắc ôn đúng thời điểm giúp ghi nhớ lâu dài hiệu quả.',
+    feat3Title: 'Thử thách', feat3Desc: 'Game trắc nghiệm tính giờ — kiểm tra từ vựng theo từng cấp độ.',
+    feat4Title: 'Luyện nghe & đọc', feat4Desc: 'Bài nghe có transcript và bài đọc với từ vựng highlight tương tác.',
     journey: 'Hành trình', journeyDesc: 'Lộ trình từ HSK1 đến HSK9',
     learn: 'Học từ vựng', learnDesc: 'Flashcard + SRS',
     challenge: 'Thử thách', challengeDesc: 'Game từ vựng có giờ',

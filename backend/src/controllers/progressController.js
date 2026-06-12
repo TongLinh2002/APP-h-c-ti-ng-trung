@@ -16,46 +16,67 @@ async function getProgress(req, res) {
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+  const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  const recentDays = await UserLessonHistory.findAll({
-    where: {
-      user_id: userId,
-      createdAt: { [Op.gte]: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000) },
-    },
-    attributes: [[fn('DATE', col('createdAt')), 'day']],
-    group: [literal('day')],
-    raw: true,
-    order: [[literal('day'), 'DESC']],
-  })
+  // Collect active days from BOTH vocab reviews and lesson completions
+  const [vocabDays, lessonDays] = await Promise.all([
+    UserVocabularyProgress.findAll({
+      where: { user_id: userId, times_seen: { [Op.gt]: 0 }, updatedAt: { [Op.gte]: thirtyDaysAgo } },
+      attributes: [[fn('DATE', col('updatedAt')), 'day']],
+      group: [literal('DATE(updatedAt)')],
+      raw: true,
+    }),
+    UserLessonHistory.findAll({
+      where: { user_id: userId, createdAt: { [Op.gte]: thirtyDaysAgo } },
+      attributes: [[fn('DATE', col('createdAt')), 'day']],
+      group: [literal('DATE(createdAt)')],
+      raw: true,
+    }),
+  ])
 
+  // Merge into a Set of 'YYYY-MM-DD' strings
+  const activeDaySet = new Set([
+    ...vocabDays.map((r) => r.day),
+    ...lessonDays.map((r) => r.day),
+  ])
+
+  // Calculate streak
   let streak = 0
   const todayStr = today.toISOString().slice(0, 10)
-  const activeDays = recentDays.map((r) => r.day)
-
-  if (activeDays.includes(todayStr)) {
+  if (activeDaySet.has(todayStr)) {
     streak = 1
     const checkDate = new Date(today)
     while (true) {
       checkDate.setDate(checkDate.getDate() - 1)
       const dayStr = checkDate.toISOString().slice(0, 10)
-      if (activeDays.includes(dayStr)) {
-        streak++
-      } else {
-        break
-      }
+      if (activeDaySet.has(dayStr)) streak++
+      else break
     }
   }
 
+  // Weekly activity (last 7 days) — count vocab reviews per day
   const weekAgo = new Date()
   weekAgo.setDate(weekAgo.getDate() - 6)
   weekAgo.setHours(0, 0, 0, 0)
 
-  const weeklyActivity = await UserLessonHistory.findAll({
-    where: { user_id: userId, createdAt: { [Op.gte]: weekAgo } },
-    attributes: [[fn('DATE', col('createdAt')), 'day'], [fn('COUNT', col('id')), 'count']],
-    group: [literal('day')],
+  const weeklyVocab = await UserVocabularyProgress.findAll({
+    where: { user_id: userId, times_seen: { [Op.gt]: 0 }, updatedAt: { [Op.gte]: weekAgo } },
+    attributes: [[fn('DATE', col('updatedAt')), 'day'], [fn('COUNT', col('id')), 'count']],
+    group: [literal('DATE(updatedAt)')],
     raw: true,
   })
+  const weeklyLesson = await UserLessonHistory.findAll({
+    where: { user_id: userId, createdAt: { [Op.gte]: weekAgo } },
+    attributes: [[fn('DATE', col('createdAt')), 'day'], [fn('COUNT', col('id')), 'count']],
+    group: [literal('DATE(createdAt)')],
+    raw: true,
+  })
+
+  // Merge weekly activity counts by day
+  const weeklyMap = {}
+  weeklyVocab.forEach((r) => { weeklyMap[r.day] = (weeklyMap[r.day] || 0) + parseInt(r.count) })
+  weeklyLesson.forEach((r) => { weeklyMap[r.day] = (weeklyMap[r.day] || 0) + parseInt(r.count) })
+  const weeklyActivity = Object.entries(weeklyMap).map(([day, count]) => ({ day, count }))
 
   res.json({ totalLearned, byLevel, streak, weeklyActivity })
 }

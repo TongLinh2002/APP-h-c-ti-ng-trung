@@ -18,6 +18,12 @@ export default {
   home: {
     title: '中文学习应用',
     subtitle: '按HSK 1–9标准学习中文，游戏化学习体验',
+    getStarted: '免费开始学习',
+    ctaText: '加入每天学中文的数千名学员！',
+    feat1Title: 'HSK 1–9词汇', feat1Desc: '用智能闪卡学习全部9个HSK级别，附详细注释。',
+    feat2Title: '间隔重复', feat2Desc: 'SRS系统在最佳时机提醒复习，帮助长期记忆。',
+    feat3Title: '挑战模式', feat3Desc: '限时多选题测验，按HSK级别检验词汇掌握程度。',
+    feat4Title: '听力与阅读', feat4Desc: '带文字稿的听力课和带词汇高亮的互动阅读课。',
     journey: '学习路线', journeyDesc: 'HSK1到HSK9的学习路径',
     learn: '词汇学习', learnDesc: '闪卡 + 间隔重复',
     challenge: '挑战', challengeDesc: '限时词汇游戏',
