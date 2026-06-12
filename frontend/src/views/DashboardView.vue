@@ -41,7 +41,7 @@ import { useI18n } from 'vue-i18n'
 import ProgressBar from '../components/ProgressBar.vue'
 import { useProgressStore } from '../stores/progress'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const store = useProgressStore()
 const loading = ref(true)
@@ -63,7 +63,7 @@ const last7Days = computed(() => {
     const d = new Date(); d.setDate(d.getDate() - i)
     const dateStr = d.toISOString().slice(0, 10)
     const found = store.weeklyActivity.find((a) => a.day === dateStr)
-    days.push({ date: dateStr, label: d.toLocaleDateString('vi', { weekday: 'short' }), count: found ? parseInt(found.count) : 0 })
+    days.push({ date: dateStr, label: d.toLocaleDateString(locale.value, { weekday: 'short' }), count: found ? parseInt(found.count) : 0 })
   }
   return days
 })
