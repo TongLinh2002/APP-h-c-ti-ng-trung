@@ -22,7 +22,10 @@
 
     <div class="nav-right">
       <LanguageSwitcher />
-      <button v-if="authStore.isLoggedIn" @click="logout" class="btn-logout">{{ $t('nav.logout') }}</button>
+      <template v-if="authStore.isLoggedIn">
+        <RouterLink to="/profile" class="btn-profile">{{ authStore.user?.display_name || authStore.user?.email }}</RouterLink>
+        <button @click="logout" class="btn-logout">{{ $t('nav.logout') }}</button>
+      </template>
       <RouterLink v-else to="/login" class="btn-login">{{ $t('nav.login') }}</RouterLink>
     </div>
   </nav>
@@ -82,6 +85,17 @@ body {
   align-items: center;
   gap: 8px;
 }
+.btn-profile {
+  color: rgba(255,255,255,0.9) !important;
+  font-size: 0.85rem !important;
+  padding: 6px 10px !important;
+  border-radius: 4px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-profile:hover { background: rgba(255,255,255,0.15) !important; }
 .btn-logout {
   background: rgba(255,255,255,0.2);
   color: white;

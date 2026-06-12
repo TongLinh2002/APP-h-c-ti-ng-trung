@@ -81,6 +81,14 @@ export default {
     loading: 'Đang tải...', empty: 'Chưa có tài liệu nào.', download: '⬇ Tải',
     types: { vocabulary_list: 'Từ vựng', pinyin_chart: 'Bảng Pinyin', slide: 'Slide', other: 'Khác' },
   },
+  profile: {
+    title: 'Tài khoản của tôi', loading: 'Đang tải...',
+    email: 'Email', role: 'Vai trò', joined: 'Ngày tham gia',
+    displayName: 'Tên hiển thị', displayNamePlaceholder: 'Tên của bạn',
+    hskLevel: 'Cấp HSK hiện tại', hskLevelHint: 'Điều này ảnh hưởng đến từ mới gợi ý cho bạn.',
+    save: 'Lưu thay đổi', saving: 'Đang lưu...',
+    saveSuccess: 'Đã lưu thành công!', saveError: 'Có lỗi xảy ra khi lưu.',
+  },
   admin: {
     title: 'Quản trị', users: 'Người dùng', downloads: 'Tài liệu',
     vocabulary: 'Từ vựng', lessons: 'Bài học',

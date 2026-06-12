@@ -10,6 +10,7 @@ const uploadsDir = path.join(__dirname, 'public/uploads')
 fs.mkdirSync(uploadsDir, { recursive: true })
 
 const authRoutes = require('./src/routes/auth')
+const profileRoutes = require('./src/routes/profile')
 const vocabularyRoutes = require('./src/routes/vocabulary')
 const lessonsRoutes = require('./src/routes/lessons')
 const progressRoutes = require('./src/routes/progress')
@@ -39,6 +40,7 @@ app.post('/api/seed', async (req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/profile', profileRoutes)
 app.use('/api/vocabulary', vocabularyRoutes)
 app.use('/api/lessons', lessonsRoutes)
 app.use('/api/progress', progressRoutes)

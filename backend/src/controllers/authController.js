@@ -42,4 +42,28 @@ async function refresh(req, res) {
   })
 }
 
-module.exports = { register, login, refresh }
+async function getProfile(req, res) {
+  const user = await User.findByPk(req.userId, {
+    attributes: ['id', 'email', 'display_name', 'current_hsk_level', 'role', 'createdAt'],
+  })
+  if (!user) return res.status(404).json({ message: 'Không tìm thấy tài khoản' })
+  res.json(user)
+}
+
+async function updateProfile(req, res) {
+  const user = await User.findByPk(req.userId)
+  if (!user) return res.status(404).json({ message: 'Không tìm thấy tài khoản' })
+
+  const { display_name, current_hsk_level } = req.body
+  const updates = {}
+  if (display_name !== undefined) updates.display_name = String(display_name).trim().slice(0, 64) || user.display_name
+  if (current_hsk_level !== undefined) {
+    const lvl = parseInt(current_hsk_level)
+    if (lvl >= 1 && lvl <= 9) updates.current_hsk_level = lvl
+  }
+
+  await user.update(updates)
+  res.json({ id: user.id, email: user.email, display_name: user.display_name, current_hsk_level: user.current_hsk_level, role: user.role })
+}
+
+module.exports = { register, login, refresh, getProfile, updateProfile }

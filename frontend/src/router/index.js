@@ -7,6 +7,7 @@ const routes = [
   { path: '/resources',  component: () => import('../views/ResourcesView.vue') },
 
   // Yêu cầu đăng nhập (user + admin)
+  { path: '/profile',    component: () => import('../views/ProfileView.vue'),    meta: { requiresAuth: true } },
   { path: '/learn',      component: () => import('../views/LearnView.vue'),      meta: { requiresAuth: true } },
   { path: '/listen',     component: () => import('../views/ListenView.vue'),     meta: { requiresAuth: true } },
   { path: '/read',       component: () => import('../views/ReadView.vue'),       meta: { requiresAuth: true } },

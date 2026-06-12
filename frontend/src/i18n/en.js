@@ -81,6 +81,14 @@ export default {
     loading: 'Loading...', empty: 'No resources available.', download: '⬇ Download',
     types: { vocabulary_list: 'Vocabulary', pinyin_chart: 'Pinyin Chart', slide: 'Slides', other: 'Other' },
   },
+  profile: {
+    title: 'My Account', loading: 'Loading...',
+    email: 'Email', role: 'Role', joined: 'Member since',
+    displayName: 'Display Name', displayNamePlaceholder: 'Your name',
+    hskLevel: 'Current HSK Level', hskLevelHint: 'This affects which new words are suggested for you.',
+    save: 'Save Changes', saving: 'Saving...',
+    saveSuccess: 'Saved successfully!', saveError: 'Failed to save changes.',
+  },
   admin: {
     title: 'Admin', users: 'Users', downloads: 'Resources',
     vocabulary: 'Vocabulary', lessons: 'Lessons',

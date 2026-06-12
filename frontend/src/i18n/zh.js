@@ -81,6 +81,14 @@ export default {
     loading: '加载中...', empty: '暂无资料。', download: '⬇ 下载',
     types: { vocabulary_list: '词汇表', pinyin_chart: '拼音表', slide: '幻灯片', other: '其他' },
   },
+  profile: {
+    title: '我的账号', loading: '加载中...',
+    email: '邮箱', role: '角色', joined: '注册日期',
+    displayName: '显示名称', displayNamePlaceholder: '您的姓名',
+    hskLevel: '当前HSK等级', hskLevelHint: '此设置会影响系统为您推荐的新词汇。',
+    save: '保存修改', saving: '保存中...',
+    saveSuccess: '保存成功！', saveError: '保存失败，请重试。',
+  },
   admin: {
     title: '管理', users: '用户', downloads: '资料',
     vocabulary: '词汇', lessons: '课程',
