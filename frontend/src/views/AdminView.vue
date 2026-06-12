@@ -220,126 +220,105 @@
     <div v-if="activeTab === 'exams'" class="panel">
       <h2>Đề thi</h2>
 
-      <form class="form-card exam-create-card" @submit.prevent="submitExamForm">
-        <p class="exam-create-title">🎵 Tạo đề thi + tải lên file âm thanh</p>
-        <div class="form-row">
-          <input v-model="examForm.title" placeholder="Tên đề thi *" required />
-          <select v-model="examForm.exam_type" required>
-            <option value="hsk">HSK</option>
-            <option value="hskk">HSKK</option>
-          </select>
-          <select v-model="examForm.hsk_level" required>
-            <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
-          </select>
-          <input v-model.number="examForm.time_limit_minutes" type="number" min="1" max="240" placeholder="Thời gian (phút) *" required style="width:150px" />
-        </div>
+      <!-- Unified create card -->
+      <div class="form-card exam-unified-card">
 
-        <div class="exam-audio-upload-row">
-          <label class="exam-audio-label">
-            <input type="file" accept=".mp3,audio/*" @change="e => examAudioFile = e.target.files[0]" />
-            <span class="exam-audio-icon">🎵</span>
-            <span class="exam-audio-text">
-              {{ examAudioFile ? examAudioFile.name : 'Chọn file MP3 cho phần nghe...' }}
-            </span>
-          </label>
-          <button v-if="examAudioFile" type="button" class="btn-del" @click="examAudioFile = null">✕ Bỏ file</button>
-        </div>
-        <p class="exam-audio-hint">
-          {{ examAudioFile ? '✓ Sẽ tự tạo phần nghe với file này sau khi tạo đề.' : 'Nếu không chọn file, đề thi sẽ được tạo không có phần nghe (có thể thêm sau).' }}
-        </p>
-
-        <button type="submit" class="btn-primary">+ Tạo đề thi</button>
-      </form>
-      <div v-if="examMsg" class="msg" :class="examMsg.type">{{ examMsg.text }}</div>
-
-      <!-- PDF Import Panel -->
-      <div class="pdf-import-panel">
-        <button class="btn-toggle-pdf" @click="pdfImportOpen = !pdfImportOpen">
-          📄 {{ pdfImportOpen ? 'Ẩn nhập PDF ▲' : 'Nhập từ file PDF ▼' }}
-        </button>
-
-        <div v-if="pdfImportOpen" class="pdf-import-body">
-          <!-- Step 1: metadata + file -->
-          <div v-if="!parsedSections">
-            <div class="form-row" style="margin-bottom:8px">
-              <input v-model="pdfMeta.title" placeholder="Tên đề thi *" required />
-              <select v-model="pdfMeta.exam_type">
-                <option value="hsk">HSK</option>
-                <option value="hskk">HSKK</option>
-              </select>
-              <select v-model="pdfMeta.hsk_level">
-                <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
-              </select>
-              <input v-model.number="pdfMeta.time_limit_minutes" type="number" min="1" max="240" placeholder="Thời gian (phút)" style="width:140px" />
-            </div>
-            <div class="form-row">
-              <label class="file-label">
-                <input type="file" accept=".pdf" @change="e => pdfFile = e.target.files[0]" />
-                {{ pdfFile ? pdfFile.name : '📂 Chọn file PDF...' }}
-              </label>
-              <button class="btn-primary" :disabled="!pdfFile || !pdfMeta.title || pdfParsing" @click="parsePdfFile">
-                {{ pdfParsing ? '⏳ Đang phân tích...' : '🔍 Phân tích PDF' }}
-              </button>
-            </div>
-            <p class="pdf-hint">Hỗ trợ PDF đề thi có câu hỏi đánh số (1. 2. 3.) và đáp án (A. B. C. D.). Sau khi phân tích bạn có thể sửa trước khi lưu.</p>
-            <div v-if="pdfMsg" class="msg" :class="pdfMsg.type" style="margin-top:8px">{{ pdfMsg.text }}</div>
+        <!-- Step 1: upload form -->
+        <div v-if="!parsedSections">
+          <div class="form-row" style="margin-bottom:12px">
+            <input v-model="pdfMeta.title" placeholder="Tên đề thi *" />
+            <select v-model="pdfMeta.exam_type">
+              <option value="hsk">HSK</option>
+              <option value="hskk">HSKK</option>
+            </select>
+            <select v-model="pdfMeta.hsk_level">
+              <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
+            </select>
+            <input v-model.number="pdfMeta.time_limit_minutes" type="number" min="1" max="240" placeholder="Thời gian (phút)" style="width:140px" />
           </div>
 
-          <!-- Step 2: editable preview -->
-          <div v-else>
-            <div class="pdf-preview-header">
-              <strong>📋 Xem trước — {{ parsedSections.length }} phần, {{ parsedSections.reduce((t,s) => t + s.questions.length, 0) }} câu hỏi</strong>
-              <button class="btn-del" @click="parsedSections = null; pdfMsg = null">← Chọn lại</button>
-            </div>
+          <div class="unified-file-row">
+            <label class="ufl" :class="{ 'ufl--active': pdfFile }">
+              <input type="file" accept=".pdf" @change="e => pdfFile = e.target.files[0]" />
+              <span class="ufl-icon">📄</span>
+              <span class="ufl-text">{{ pdfFile ? pdfFile.name : 'Chọn file PDF đề thi (tuỳ chọn)' }}</span>
+              <span v-if="pdfFile" class="ufl-clear" @click.prevent="pdfFile = null">✕</span>
+            </label>
+            <label class="ufl ufl--audio" :class="{ 'ufl--active': pdfMainAudio }">
+              <input type="file" accept=".mp3,audio/*" @change="e => pdfMainAudio = e.target.files[0]" />
+              <span class="ufl-icon">🎵</span>
+              <span class="ufl-text">{{ pdfMainAudio ? pdfMainAudio.name : 'Chọn file MP3 âm thanh (tuỳ chọn)' }}</span>
+              <span v-if="pdfMainAudio" class="ufl-clear" @click.prevent="pdfMainAudio = null">✕</span>
+            </label>
+          </div>
 
-            <div v-for="(section, si) in parsedSections" :key="si" class="pdf-section-card">
-              <div class="pdf-section-header">
-                <input v-model="section.title" placeholder="Tên phần" class="pdf-section-title-input" />
-                <select v-model="section.type" class="pdf-section-type-select">
-                  <option value="listening">Nghe</option>
-                  <option value="reading">Đọc</option>
-                  <option value="fill">Điền từ</option>
-                </select>
-                <span class="badge-grey">{{ section.questions.length }} câu</span>
-                <button class="btn-del" @click="removePdfSection(si)">Xóa phần</button>
-              </div>
-
-              <!-- Audio upload for listening sections -->
-              <div v-if="section.type === 'listening'" class="pdf-audio-row">
-                <span class="pdf-audio-label">🎵 File nghe:</span>
-                <label class="pdf-audio-file-label">
-                  <input type="file" accept="audio/*" @change="e => section._audioFile = e.target.files[0]" />
-                  {{ section._audioFile ? section._audioFile.name : 'Chọn file audio (.mp3, .m4a...)' }}
-                </label>
-                <button v-if="section._audioFile" class="btn-del" @click="section._audioFile = null">✕</button>
-              </div>
-
-              <div v-for="(q, qi) in section.questions" :key="qi" class="pdf-question-row">
-                <div class="pdf-q-num">{{ qi + 1 }}.</div>
-                <div class="pdf-q-content">
-                  <input v-model="q.question_text" placeholder="Nội dung câu hỏi..." class="pdf-q-text-input" />
-                  <div v-if="q.options && q.options.length >= 2" class="pdf-options">
-                    <div v-for="(_, oi) in q.options" :key="oi" class="pdf-option-row">
-                      <label class="pdf-opt-radio">
-                        <input type="radio" :name="`pdf-q-${si}-${qi}`" :value="String(oi)" v-model="q.correct_answer" />
-                        {{ ['A','B','C','D'][oi] }}.
-                      </label>
-                      <input v-model="q.options[oi]" :placeholder="`Đáp án ${['A','B','C','D'][oi]}`" class="pdf-opt-input" />
-                    </div>
-                  </div>
-                  <input v-else v-model="q.correct_answer" placeholder="Đáp án đúng (điền từ)..." class="pdf-fill-answer" />
-                </div>
-                <button class="btn-del" style="align-self:flex-start;margin-top:6px" @click="removePdfQuestion(si, qi)">✕</button>
-              </div>
-
-              <button class="btn-add-q" @click="addPdfQuestion(si)">+ Thêm câu</button>
-            </div>
-
-            <div v-if="pdfMsg" class="msg" :class="pdfMsg.type" style="margin-top:8px">{{ pdfMsg.text }}</div>
-            <button class="btn-primary" :disabled="pdfImporting" @click="confirmPdfImport" style="margin-top:12px">
-              {{ pdfImporting ? 'Đang lưu...' : '✅ Xác nhận nhập đề thi' }}
+          <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+            <button v-if="pdfFile" class="btn-primary" :disabled="!pdfMeta.title || pdfParsing" @click="parsePdfFile">
+              {{ pdfParsing ? '⏳ Đang phân tích...' : '🔍 Phân tích PDF & Tạo đề' }}
+            </button>
+            <button v-else class="btn-primary" :disabled="!pdfMeta.title || pdfParsing" @click="createExamDirectly">
+              {{ pdfParsing ? 'Đang tạo...' : '➕ Tạo đề thi' }}
             </button>
           </div>
+          <div v-if="pdfMsg" class="msg" :class="pdfMsg.type" style="margin-top:10px">{{ pdfMsg.text }}</div>
+        </div>
+
+        <!-- Step 2: editable preview (after PDF parse) -->
+        <div v-else>
+          <div class="pdf-preview-header">
+            <strong>📋 {{ pdfMeta.title }} — {{ parsedSections.length }} phần, {{ parsedSections.reduce((t,s) => t + s.questions.length, 0) }} câu hỏi</strong>
+            <button class="btn-del" @click="parsedSections = null; pdfMsg = null">← Chọn lại</button>
+          </div>
+          <div v-if="pdfMainAudio" class="pdf-audio-reminder">
+            🎵 <strong>{{ pdfMainAudio.name }}</strong> sẽ được gắn vào phần nghe sau khi xác nhận.
+          </div>
+
+          <div v-for="(section, si) in parsedSections" :key="si" class="pdf-section-card">
+            <div class="pdf-section-header">
+              <input v-model="section.title" placeholder="Tên phần" class="pdf-section-title-input" />
+              <select v-model="section.type" class="pdf-section-type-select">
+                <option value="listening">Nghe</option>
+                <option value="reading">Đọc</option>
+                <option value="fill">Điền từ</option>
+              </select>
+              <span class="badge-grey">{{ section.questions.length }} câu</span>
+              <button class="btn-del" @click="removePdfSection(si)">Xóa phần</button>
+            </div>
+
+            <!-- Per-section audio only if no global MP3 was selected -->
+            <div v-if="section.type === 'listening' && !pdfMainAudio" class="pdf-audio-row">
+              <span class="pdf-audio-label">🎵 File nghe riêng:</span>
+              <label class="pdf-audio-file-label">
+                <input type="file" accept="audio/*" @change="e => section._audioFile = e.target.files[0]" />
+                {{ section._audioFile ? section._audioFile.name : 'Chọn file audio (.mp3, .m4a...)' }}
+              </label>
+              <button v-if="section._audioFile" class="btn-del" @click="section._audioFile = null">✕</button>
+            </div>
+
+            <div v-for="(q, qi) in section.questions" :key="qi" class="pdf-question-row">
+              <div class="pdf-q-num">{{ qi + 1 }}.</div>
+              <div class="pdf-q-content">
+                <input v-model="q.question_text" placeholder="Nội dung câu hỏi..." class="pdf-q-text-input" />
+                <div v-if="q.options && q.options.length >= 2" class="pdf-options">
+                  <div v-for="(_, oi) in q.options" :key="oi" class="pdf-option-row">
+                    <label class="pdf-opt-radio">
+                      <input type="radio" :name="`pdf-q-${si}-${qi}`" :value="String(oi)" v-model="q.correct_answer" />
+                      {{ ['A','B','C','D'][oi] }}.
+                    </label>
+                    <input v-model="q.options[oi]" :placeholder="`Đáp án ${['A','B','C','D'][oi]}`" class="pdf-opt-input" />
+                  </div>
+                </div>
+                <input v-else v-model="q.correct_answer" placeholder="Đáp án đúng (điền từ)..." class="pdf-fill-answer" />
+              </div>
+              <button class="btn-del" style="align-self:flex-start;margin-top:6px" @click="removePdfQuestion(si, qi)">✕</button>
+            </div>
+            <button class="btn-add-q" @click="addPdfQuestion(si)">+ Thêm câu</button>
+          </div>
+
+          <div v-if="pdfMsg" class="msg" :class="pdfMsg.type" style="margin-top:8px">{{ pdfMsg.text }}</div>
+          <button class="btn-primary" :disabled="pdfImporting" @click="confirmPdfImport" style="margin-top:12px">
+            {{ pdfImporting ? 'Đang lưu...' : '✅ Xác nhận tạo đề thi' }}
+          </button>
         </div>
       </div>
 
@@ -648,37 +627,12 @@ async function setRole(id, role) {
 
 // Exams
 const exams = ref([])
-const examMsg = ref(null)
-const examForm = ref({ title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' })
-const examAudioFile = ref(null)
 const expandedExam = ref(null)
 const sectionForms = ref({})
 const questionForms = ref({})
 
 async function loadExams() {
   exams.value = await adminListExams()
-}
-
-async function submitExamForm() {
-  try {
-    const exam = await adminCreateExam(examForm.value)
-    // Auto-create listening section with audio if file provided
-    if (examAudioFile.value) {
-      const fd = new FormData()
-      fd.append('title', 'Phần nghe')
-      fd.append('type', 'listening')
-      fd.append('order_index', '0')
-      fd.append('file', examAudioFile.value)
-      await adminCreateSection(exam.id, fd)
-      examAudioFile.value = null
-    }
-    examMsg.value = { type: 'success', text: 'Đã tạo đề thi!' }
-    examForm.value = { title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' }
-    await loadExams()
-  } catch (e) {
-    examMsg.value = { type: 'error', text: e.response?.data?.message || 'Lỗi tạo đề' }
-  }
-  setTimeout(() => { examMsg.value = null }, 3000)
 }
 
 async function deleteExam(id) {
@@ -741,14 +695,46 @@ async function deleteQuestion(qid) {
   await loadExams()
 }
 
-// PDF import
-const pdfImportOpen = ref(false)
+// Unified exam create / PDF import
 const pdfMeta = ref({ title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90 })
 const pdfFile = ref(null)
+const pdfMainAudio = ref(null)
 const parsedSections = ref(null)
 const pdfParsing = ref(false)
 const pdfImporting = ref(false)
 const pdfMsg = ref(null)
+
+function resetExamForm() {
+  pdfMeta.value = { title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90 }
+  pdfFile.value = null
+  pdfMainAudio.value = null
+  parsedSections.value = null
+}
+
+async function createExamDirectly() {
+  if (!pdfMeta.value.title) return
+  pdfParsing.value = true
+  pdfMsg.value = null
+  try {
+    const exam = await adminCreateExam(pdfMeta.value)
+    if (pdfMainAudio.value) {
+      const fd = new FormData()
+      fd.append('title', 'Phần nghe')
+      fd.append('type', 'listening')
+      fd.append('order_index', '0')
+      fd.append('file', pdfMainAudio.value)
+      await adminCreateSection(exam.id, fd)
+    }
+    pdfMsg.value = { type: 'success', text: 'Đã tạo đề thi!' }
+    resetExamForm()
+    await loadExams()
+  } catch (e) {
+    pdfMsg.value = { type: 'error', text: e.response?.data?.message || 'Lỗi tạo đề' }
+  } finally {
+    pdfParsing.value = false
+    setTimeout(() => { pdfMsg.value = null }, 3000)
+  }
+}
 
 async function parsePdfFile() {
   if (!pdfFile.value || !pdfMeta.value.title) return
@@ -758,7 +744,6 @@ async function parsePdfFile() {
     const fd = new FormData()
     fd.append('file', pdfFile.value)
     const res = await adminParsePdf(fd)
-    // Attach _audioFile field so audio uploads can be tracked per-section
     parsedSections.value = res.sections.map(s => ({ ...s, _audioFile: null }))
     if (res.sections.length === 0)
       pdfMsg.value = { type: 'error', text: 'Không tìm thấy câu hỏi trong PDF. Vui lòng kiểm tra định dạng file.' }
@@ -775,8 +760,21 @@ async function confirmPdfImport() {
   try {
     const result = await adminBulkImport({ ...pdfMeta.value, sections: parsedSections.value })
 
-    // Upload audio files for listening sections that have a file selected
-    const audioUploads = result.sections
+    // Global MP3 → first listening section
+    if (pdfMainAudio.value) {
+      const ls = result.sections.find(s => s.type === 'listening')
+      if (ls) {
+        const fd = new FormData()
+        fd.append('file', pdfMainAudio.value)
+        fd.append('title', ls.title)
+        fd.append('type', ls.type)
+        fd.append('order_index', String(ls.order_index))
+        await adminUpdateSection(ls.id, fd)
+      }
+    }
+
+    // Per-section audio (only shown when no global MP3)
+    const perSection = result.sections
       .filter((_, i) => parsedSections.value[i]?._audioFile)
       .map((s, i) => {
         const fd = new FormData()
@@ -786,13 +784,10 @@ async function confirmPdfImport() {
         fd.append('order_index', String(s.order_index))
         return adminUpdateSection(s.id, fd)
       })
-    if (audioUploads.length) await Promise.all(audioUploads)
+    if (perSection.length) await Promise.all(perSection)
 
-    pdfMsg.value = { type: 'success', text: 'Đã nhập đề thi thành công!' }
-    parsedSections.value = null
-    pdfFile.value = null
-    pdfImportOpen.value = false
-    pdfMeta.value = { title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90 }
+    pdfMsg.value = { type: 'success', text: 'Đã tạo đề thi thành công!' }
+    resetExamForm()
     await loadExams()
   } catch (e) {
     pdfMsg.value = { type: 'error', text: e.response?.data?.message || 'Lỗi khi lưu đề thi' }
@@ -888,16 +883,19 @@ textarea { resize: vertical; }
 .vocab-count { font-size: 0.82rem; color: #aaa; margin-left: 8px; }
 .filter-row { display: flex; align-items: center; margin-bottom: 12px; }
 
-/* ── Exam create with audio ── */
-.exam-create-card { border: 2px dashed #ef9a9a; background: #fff8f8; }
-.exam-create-title { font-size: 0.95rem; font-weight: 700; color: #c62828; margin: 0 0 4px; }
-.exam-audio-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.exam-audio-label { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 2px dashed #ef9a9a; border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
-.exam-audio-label:hover { border-color: #d32f2f; background: #fff5f5; }
-.exam-audio-label input[type="file"] { display: none; }
-.exam-audio-icon { font-size: 1.5rem; }
-.exam-audio-text { font-size: 14px; color: #555; flex: 1; }
-.exam-audio-hint { font-size: 0.78rem; color: #888; margin: 2px 0 0; }
+/* ── Unified exam create card ── */
+.exam-unified-card { border: 2px dashed #ef9a9a; background: #fff8f8; }
+.unified-file-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ufl { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 2px dashed #ddd; border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; min-width: 0; }
+.ufl input[type="file"] { display: none; }
+.ufl:hover { border-color: #999; background: #fafafa; }
+.ufl--audio { border-color: #c8e6fa; }
+.ufl--audio:hover { border-color: #1565c0; background: #e3f2fd; }
+.ufl--active { border-style: solid; }
+.ufl-icon { font-size: 1.4rem; flex-shrink: 0; }
+.ufl-text { font-size: 13px; color: #555; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ufl-clear { flex-shrink: 0; background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; border-radius: 4px; padding: 2px 6px; font-size: 12px; cursor: pointer; }
+@media (max-width: 600px) { .unified-file-row { grid-template-columns: 1fr; } }
 
 /* ── Exam admin ── */
 .exam-admin-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
@@ -917,13 +915,9 @@ textarea { resize: vertical; }
 .btn-add-q { margin-top: 8px; background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .btn-add-q:hover { background: #bbdefb; }
 
-/* ── PDF import ── */
-.pdf-import-panel { background: #f3e5f5; border: 1px solid #ce93d8; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; }
-.btn-toggle-pdf { background: #7b1fa2; color: white; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; }
-.btn-toggle-pdf:hover { background: #6a1b9a; }
-.pdf-import-body { margin-top: 12px; }
-.pdf-hint { font-size: 0.78rem; color: #7b1fa2; margin-top: 6px; }
+/* ── PDF preview ── */
 .pdf-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 12px; background: white; border-radius: 6px; }
+.pdf-audio-reminder { background: #e3f2fd; border: 1px solid #90caf9; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #1565c0; }
 .pdf-section-card { background: white; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 10px; padding: 10px 14px; }
 .pdf-section-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .pdf-section-title-input { flex: 1; min-width: 180px; }
