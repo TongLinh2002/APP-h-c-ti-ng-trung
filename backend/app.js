@@ -17,6 +17,7 @@ const progressRoutes = require('./src/routes/progress')
 const challengeRoutes = require('./src/routes/challenge')
 const downloadsRoutes = require('./src/routes/downloads')
 const adminRoutes = require('./src/routes/admin')
+const examRoutes = require('./src/routes/exam')
 
 const app = express()
 app.use(cors())
@@ -47,6 +48,7 @@ app.use('/api/progress', progressRoutes)
 app.use('/api/challenge', challengeRoutes)
 app.use('/api/downloads', downloadsRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/exams', examRoutes)
 
 // Global error handler — returns JSON instead of HTML for all errors
 app.use((err, req, res, next) => {
