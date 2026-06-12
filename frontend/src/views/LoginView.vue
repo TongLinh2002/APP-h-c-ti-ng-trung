@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 
@@ -32,6 +32,7 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
@@ -40,7 +41,12 @@ async function handleLogin() {
   loading.value = true
   try {
     await authStore.loginAction(email.value, password.value)
-    router.push('/dashboard')
+    const redirect = route.query.redirect
+    if (redirect && typeof redirect === 'string') {
+      router.push(redirect)
+    } else {
+      router.push(authStore.isAdmin ? '/admin' : '/dashboard')
+    }
   } catch (e) {
     error.value = e.response?.data?.message || t('auth.loginFailed')
   } finally {
