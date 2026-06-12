@@ -5,7 +5,7 @@
     <template v-if="authStore.isLoggedIn">
       <div class="welcome-bar">
         <div class="welcome-text">
-          <h2>Xin chào, {{ authStore.user?.display_name || 'bạn' }}! 👋</h2>
+          <h2>{{ $t('home.greeting', { name: authStore.user?.display_name || $t('home.greetingDefault') }) }} 👋</h2>
           <p>{{ $t('home.subtitle') }}</p>
         </div>
       </div>
@@ -26,15 +26,15 @@
           <span class="card-title">{{ $t('home.challenge') }}</span>
           <span class="card-desc">{{ $t('home.challengeDesc') }}</span>
         </RouterLink>
-        <RouterLink to="/listen" class="nav-card listen">
-          <span class="card-icon">🎧</span>
-          <span class="card-title">{{ $t('home.listen') }}</span>
-          <span class="card-desc">{{ $t('home.listenDesc') }}</span>
+        <RouterLink to="/hsk" class="nav-card hsk">
+          <span class="card-icon">📝</span>
+          <span class="card-title">HSK</span>
+          <span class="card-desc">{{ $t('home.hskDesc') }}</span>
         </RouterLink>
-        <RouterLink to="/read" class="nav-card read">
-          <span class="card-icon">📖</span>
-          <span class="card-title">{{ $t('home.read') }}</span>
-          <span class="card-desc">{{ $t('home.readDesc') }}</span>
+        <RouterLink to="/hskk" class="nav-card hskk">
+          <span class="card-icon">🎙️</span>
+          <span class="card-title">HSKK</span>
+          <span class="card-desc">{{ $t('home.hskkDesc') }}</span>
         </RouterLink>
         <RouterLink to="/resources" class="nav-card resources">
           <span class="card-icon">📄</span>
@@ -94,8 +94,10 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 const authStore = useAuthStore()
+const { t } = useI18n()
 </script>
 
 <style scoped>
