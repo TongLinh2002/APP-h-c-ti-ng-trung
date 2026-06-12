@@ -52,15 +52,15 @@
         <div v-if="section.type === 'listening'" class="listening-layout">
           <div class="listening-audio-panel">
             <div class="listening-audio-card">
-              <p class="listening-audio-heading">🎵 Phần nghe</p>
+              <p class="listening-audio-heading">{{ $t('exam.listeningSection') }}</p>
               <audio
                 v-if="section.audio_url"
                 :src="section.audio_url"
                 controls
                 class="audio-player-main"
               />
-              <p v-else class="listening-no-audio">Chưa có file audio</p>
-              <p class="listening-tip">{{ section.questions.length }} câu hỏi cho phần này</p>
+              <p v-else class="listening-no-audio">{{ $t('exam.noAudio') }}</p>
+              <p class="listening-tip">{{ $t('exam.questionCount', { n: section.questions.length }) }}</p>
             </div>
           </div>
 
@@ -73,32 +73,42 @@
                   <span>{{ ['A','B','C','D'][i] }}. {{ opt }}</span>
                 </label>
               </div>
-              <input v-else type="text" v-model="answers[q.id]" class="fill-input" placeholder="Nhập câu trả lời..." />
+              <input v-else type="text" v-model="answers[q.id]" class="fill-input" :placeholder="$t('exam.fillPlaceholder')" />
             </div>
           </div>
         </div>
 
         <!-- Reading + Fill: passage (if any) then questions -->
         <template v-else>
-          <div v-if="section.type === 'reading' && section.passage" class="passage-block">
+          <div v-if="section.passage" class="passage-block">
             <pre class="passage-text">{{ section.passage }}</pre>
           </div>
           <div v-for="(q, qi) in section.questions" :key="q.id" class="question-block">
-            <p class="q-text"><span class="q-num">{{ qi + 1 }}.</span> {{ q.question_text }}</p>
+            <p v-if="q.question_text" class="q-text"><span class="q-num">{{ qi + 1 }}.</span> {{ q.question_text }}</p>
+            <p v-else class="q-text q-num-only"><span class="q-num">{{ qi + 1 }}.</span></p>
             <div v-if="q.options" class="options-list">
               <label v-for="(opt, i) in q.options" :key="i" class="option-label">
                 <input type="radio" :name="`q${q.id}`" :value="String(i)" v-model="answers[q.id]" />
                 <span>{{ ['A','B','C','D'][i] }}. {{ opt }}</span>
               </label>
             </div>
-            <input v-else type="text" v-model="answers[q.id]" class="fill-input" placeholder="Nhập câu trả lời..." />
+            <!-- Essay question (fill, long prompt) -->
+            <textarea
+              v-else-if="section.type === 'fill' && q.question_text && q.question_text.length > 30"
+              v-model="answers[q.id]"
+              class="essay-input"
+              rows="6"
+              :placeholder="$t('exam.essayPlaceholder')"
+            />
+            <!-- Word-scramble or short fill -->
+            <input v-else type="text" v-model="answers[q.id]" class="fill-input" :placeholder="$t('exam.fillPlaceholder')" />
           </div>
         </template>
       </div>
 
       <div class="submit-row">
         <button class="btn-submit" @click="handleSubmit" :disabled="submitting">
-          {{ submitting ? 'Đang nộp...' : $t('exam.submit') }}
+          {{ submitting ? $t('exam.submitting') : $t('exam.submit') }}
         </button>
       </div>
     </div>
@@ -193,8 +203,6 @@ function displayAnswer(question, answer) {
 .section-type-badge { background: #d32f2f; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; }
 .audio-block { margin-bottom: 16px; }
 .audio-player { width: 100%; }
-.passage-block { background: #f9f9f9; border-left: 3px solid #d32f2f; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
-.passage-text { white-space: pre-wrap; font-family: inherit; line-height: 1.8; font-size: 1rem; }
 .question-block { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
 .question-block:last-child { border-bottom: none; }
 .q-text { margin-bottom: 10px; font-size: 0.95rem; line-height: 1.5; }
@@ -204,6 +212,10 @@ function displayAnswer(question, answer) {
 .option-label:hover { background: #fff5f5; }
 .option-label input { accent-color: #d32f2f; }
 .fill-input { width: 100%; max-width: 340px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
+.essay-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; resize: vertical; font-family: inherit; line-height: 1.6; }
+.q-num-only { color: #888; font-size: 0.9rem; }
+.passage-block { background: #f9f9f9; border-left: 3px solid #1565c0; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+.passage-text { white-space: pre-wrap; font-family: inherit; line-height: 1.8; font-size: 1rem; }
 .submit-row { text-align: center; padding: 24px 0; }
 .btn-submit { padding: 14px 48px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
 .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
