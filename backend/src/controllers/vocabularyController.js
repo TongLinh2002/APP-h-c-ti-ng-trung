@@ -53,27 +53,51 @@ async function getReviewCards(req, res) {
 async function getLevelStats(req, res) {
   const userId = req.userId
   const now = new Date()
+  const sequelize = Vocabulary.sequelize
 
+  // 1. Total vocab per level (1 query)
+  const totalRows = await Vocabulary.findAll({
+    attributes: ['hsk_level', [sequelize.fn('COUNT', sequelize.col('id')), 'cnt']],
+    group: ['hsk_level'],
+    raw: true,
+  })
+
+  // 2. Seen vocab IDs (1 query)
   const seenRows = await UserVocabularyProgress.findAll({
     where: { user_id: userId },
     attributes: ['vocabulary_id'],
+    raw: true,
   })
   const seenIds = seenRows.map(r => r.vocabulary_id)
 
+  // 3. New vocab per level (1 query)
+  const newWhere = seenIds.length > 0 ? { id: { [Op.notIn]: seenIds } } : {}
+  const newRows = await Vocabulary.findAll({
+    attributes: ['hsk_level', [sequelize.fn('COUNT', sequelize.col('id')), 'cnt']],
+    where: newWhere,
+    group: ['hsk_level'],
+    raw: true,
+  })
+
+  // 4. Due cards per level (1 query via join)
+  const dueRows = await UserVocabularyProgress.findAll({
+    where: { user_id: userId, next_review_at: { [Op.lte]: now } },
+    include: [{ model: Vocabulary, attributes: ['hsk_level'] }],
+    attributes: [],
+    raw: true,
+  })
+
+  // Build result map
   const result = {}
   for (let level = 1; level <= 9; level++) {
-    const total = await Vocabulary.count({ where: { hsk_level: level } })
-
-    const newWhere = { hsk_level: level }
-    if (seenIds.length > 0) newWhere.id = { [Op.notIn]: seenIds }
-    const newCount = await Vocabulary.count({ where: newWhere })
-
-    const dueCount = await UserVocabularyProgress.count({
-      where: { user_id: userId, next_review_at: { [Op.lte]: now } },
-      include: [{ model: Vocabulary, where: { hsk_level: level } }],
-    })
-
-    result[level] = { total, new: newCount, due: dueCount }
+    const t = totalRows.find(r => parseInt(r.hsk_level) === level)
+    const n = newRows.find(r => parseInt(r.hsk_level) === level)
+    const dueCount = dueRows.filter(r => parseInt(r['Vocabulary.hsk_level']) === level).length
+    result[level] = {
+      total: t ? parseInt(t.cnt) : 0,
+      new: n ? parseInt(n.cnt) : 0,
+      due: dueCount,
+    }
   }
 
   res.json(result)
