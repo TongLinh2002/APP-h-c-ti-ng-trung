@@ -43,7 +43,18 @@ router.get('/lessons', ctrl.listLessons)
 router.post('/lessons', ctrl.createLesson)
 router.delete('/lessons/:id', ctrl.deleteLesson)
 
+// PDF memory-storage for parsing (no disk write needed)
+const uploadPdfMem = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } })
+function uploadPdfSingle(req, res, next) {
+  uploadPdfMem.single('file')(req, res, err => {
+    if (err) return res.status(400).json({ message: err.message || 'Lỗi upload PDF' })
+    next()
+  })
+}
+
 // Exam admin routes
+router.post('/exams/parse-pdf',  uploadPdfSingle, examCtrl.parsePdf)
+router.post('/exams/bulk-import',                  examCtrl.bulkImport)
 router.get('/exams',                               examCtrl.adminListExams)
 router.post('/exams',                              examCtrl.createExam)
 router.put('/exams/:id',                           examCtrl.updateExam)

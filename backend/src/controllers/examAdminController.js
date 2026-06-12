@@ -1,5 +1,117 @@
 const { Exam, ExamSection, ExamQuestion } = require('../models')
 
+// ── PDF parsing helpers ──────────────────────────────────────────────────────
+
+function detectSectionType(line) {
+  if (/听力|nghe|listen/i.test(line)) return 'listening'
+  if (/书写|填空|填写|điền|viết|fill|writ/i.test(line)) return 'fill'
+  return 'reading'
+}
+
+const SECTION_RES = [
+  /第[一二三四五六七八九十百]+部分/,
+  /phần\s*\d*\s*[:：]?\s*(nghe|đọc|điền|viết)/i,
+  /^\s*(nghe hiểu|đọc hiểu|điền từ|listening|reading|writing)\s*$/i,
+  /听力[理解]?/,
+  /阅读[理解]?/,
+  /书写|填空/,
+]
+
+function parsePdfText(rawText) {
+  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 1)
+  const Q_RE = /^(?:câu\s+)?(\d{1,3})[.、．。）\)\s]\s*(.{2,})/i
+  const OPT_RE = /^([A-D])[.、．。）\)\s]\s*(.{1,})/
+
+  const sections = []
+  let cur = null     // current section
+  let cq = null      // current question
+
+  const saveQ = () => { if (cq && cur) { if (cq.options.length < 2) cq.options = null; cur.questions.push(cq); cq = null } }
+  const saveS = () => { saveQ(); if (cur) sections.push(cur); cur = null }
+
+  for (const line of lines) {
+    if (/^\d+$/.test(line) || line.length < 2) continue
+
+    const isSec = SECTION_RES.some(r => r.test(line)) && line.length < 80
+    if (isSec) {
+      saveS()
+      cur = { title: line, type: detectSectionType(line), order_index: sections.length, questions: [] }
+      continue
+    }
+
+    const qm = line.match(Q_RE)
+    if (qm && parseInt(qm[1]) <= 200) {
+      saveQ()
+      if (!cur) cur = { title: 'Phần 1', type: 'reading', order_index: 0, questions: [] }
+      cq = { order_index: parseInt(qm[1]) - 1, question_text: qm[2].trim(), options: [], correct_answer: '' }
+      continue
+    }
+
+    const om = line.match(OPT_RE)
+    if (om && cq) { cq.options.push(om[2].trim()); continue }
+
+    if (cq && line.length < 300 && !SECTION_RES.some(r => r.test(line)) && !Q_RE.test(line)) {
+      cq.question_text += ' ' + line
+    }
+  }
+  saveS()
+
+  return sections.length > 0
+    ? sections
+    : [{ title: 'Nội dung đề thi', type: 'reading', order_index: 0, questions: [] }]
+}
+
+async function parsePdf(req, res) {
+  if (!req.file) return res.status(400).json({ message: 'Không có file PDF' })
+  try {
+    const pdfParse = require('pdf-parse')
+    const data = await pdfParse(req.file.buffer)
+    const sections = parsePdfText(data.text)
+    res.json({ sections, pageCount: data.numpages })
+  } catch (e) {
+    res.status(422).json({ message: 'Không thể đọc PDF: ' + e.message })
+  }
+}
+
+async function bulkImport(req, res) {
+  const { title, exam_type, hsk_level, time_limit_minutes, description, sections } = req.body
+  if (!title || !exam_type || !hsk_level || !time_limit_minutes)
+    return res.status(400).json({ message: 'Thiếu: title, exam_type, hsk_level, time_limit_minutes' })
+
+  const exam = await Exam.create({
+    title, exam_type,
+    hsk_level: parseInt(hsk_level),
+    time_limit_minutes: parseInt(time_limit_minutes),
+    description: description || null,
+  })
+
+  for (let si = 0; si < (sections || []).length; si++) {
+    const s = sections[si]
+    const section = await ExamSection.create({
+      exam_id: exam.id,
+      title: s.title,
+      type: s.type,
+      order_index: si,
+      passage: s.passage || null,
+      audio_url: null,
+    })
+    for (let qi = 0; qi < (s.questions || []).length; qi++) {
+      const q = s.questions[qi]
+      if (!q.question_text || q.correct_answer === '' || q.correct_answer == null) continue
+      await ExamQuestion.create({
+        section_id: section.id,
+        question_text: q.question_text,
+        options: q.options && q.options.length >= 2 ? q.options : null,
+        correct_answer: String(q.correct_answer),
+        points: 1,
+        order_index: qi,
+      })
+    }
+  }
+
+  res.status(201).json({ message: 'Đã nhập đề thi thành công', exam_id: exam.id })
+}
+
 async function adminListExams(req, res) {
   const exams = await Exam.findAll({
     include: [{
@@ -119,4 +231,5 @@ module.exports = {
   adminListExams, createExam, updateExam, deleteExam,
   createSection, updateSection, deleteSection,
   createQuestion, updateQuestion, deleteQuestion,
+  parsePdf, bulkImport,
 }
