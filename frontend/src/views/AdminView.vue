@@ -289,6 +289,16 @@
                 <button class="btn-del" @click="removePdfSection(si)">Xóa phần</button>
               </div>
 
+              <!-- Audio upload for listening sections -->
+              <div v-if="section.type === 'listening'" class="pdf-audio-row">
+                <span class="pdf-audio-label">🎵 File nghe:</span>
+                <label class="pdf-audio-file-label">
+                  <input type="file" accept="audio/*" @change="e => section._audioFile = e.target.files[0]" />
+                  {{ section._audioFile ? section._audioFile.name : 'Chọn file audio (.mp3, .m4a...)' }}
+                </label>
+                <button v-if="section._audioFile" class="btn-del" @click="section._audioFile = null">✕</button>
+              </div>
+
               <div v-for="(q, qi) in section.questions" :key="qi" class="pdf-question-row">
                 <div class="pdf-q-num">{{ qi + 1 }}.</div>
                 <div class="pdf-q-content">
@@ -429,7 +439,7 @@ import {
   adminListExams, adminCreateExam, adminDeleteExam,
   adminCreateSection, adminDeleteSection,
   adminCreateQuestion, adminDeleteQuestion,
-  adminParsePdf, adminBulkImport,
+  adminParsePdf, adminBulkImport, adminUpdateSection,
 } from '../services/examService'
 
 const { t } = useI18n()
@@ -722,8 +732,10 @@ async function parsePdfFile() {
     const fd = new FormData()
     fd.append('file', pdfFile.value)
     const res = await adminParsePdf(fd)
-    parsedSections.value = res.sections
-    if (res.sections.length === 0) pdfMsg.value = { type: 'error', text: 'Không tìm thấy câu hỏi trong PDF. Vui lòng kiểm tra định dạng file.' }
+    // Attach _audioFile field so audio uploads can be tracked per-section
+    parsedSections.value = res.sections.map(s => ({ ...s, _audioFile: null }))
+    if (res.sections.length === 0)
+      pdfMsg.value = { type: 'error', text: 'Không tìm thấy câu hỏi trong PDF. Vui lòng kiểm tra định dạng file.' }
   } catch (e) {
     pdfMsg.value = { type: 'error', text: e.response?.data?.message || 'Không thể đọc PDF' }
   } finally {
@@ -735,7 +747,21 @@ async function confirmPdfImport() {
   pdfImporting.value = true
   pdfMsg.value = null
   try {
-    await adminBulkImport({ ...pdfMeta.value, sections: parsedSections.value })
+    const result = await adminBulkImport({ ...pdfMeta.value, sections: parsedSections.value })
+
+    // Upload audio files for listening sections that have a file selected
+    const audioUploads = result.sections
+      .filter((_, i) => parsedSections.value[i]?._audioFile)
+      .map((s, i) => {
+        const fd = new FormData()
+        fd.append('file', parsedSections.value[i]._audioFile)
+        fd.append('title', s.title)
+        fd.append('type', s.type)
+        fd.append('order_index', String(s.order_index))
+        return adminUpdateSection(s.id, fd)
+      })
+    if (audioUploads.length) await Promise.all(audioUploads)
+
     pdfMsg.value = { type: 'success', text: 'Đã nhập đề thi thành công!' }
     parsedSections.value = null
     pdfFile.value = null
@@ -876,4 +902,8 @@ textarea { resize: vertical; }
 .pdf-opt-radio input { accent-color: #7b1fa2; }
 .pdf-opt-input { flex: 1; }
 .pdf-fill-answer { width: 100%; border-color: #a5d6a7; background: #f1f8e9; }
+.pdf-audio-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 4px; flex-wrap: wrap; }
+.pdf-audio-label { font-size: 13px; font-weight: 600; color: #1565c0; white-space: nowrap; }
+.pdf-audio-file-label { flex: 1; min-width: 200px; padding: 6px 12px; border: 1px dashed #90caf9; border-radius: 6px; cursor: pointer; font-size: 13px; color: #555; background: #e3f2fd; display: flex; align-items: center; gap: 6px; }
+.pdf-audio-file-label input[type="file"] { display: none; }
 </style>

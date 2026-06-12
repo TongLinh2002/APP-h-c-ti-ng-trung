@@ -47,6 +47,11 @@ export async function adminDeleteQuestion(qid) {
   await api.delete(`/admin/exams/questions/${qid}`)
 }
 
+export async function adminUpdateSection(sid, formData) {
+  const res = await api.put(`/admin/exams/sections/${sid}`, formData)
+  return res.data
+}
+
 export async function adminParsePdf(formData) {
   const res = await api.post('/admin/exams/parse-pdf', formData)
   return res.data

@@ -1,4 +1,6 @@
 const { Exam, ExamSection, ExamQuestion } = require('../models')
+// Use lib path directly — avoids the test-file read that main index.js triggers
+const pdfParse = require('pdf-parse/lib/pdf-parse.js')
 
 // ── PDF parsing helpers ──────────────────────────────────────────────────────
 
@@ -64,7 +66,6 @@ function parsePdfText(rawText) {
 async function parsePdf(req, res) {
   if (!req.file) return res.status(400).json({ message: 'Không có file PDF' })
   try {
-    const pdfParse = require('pdf-parse')
     const data = await pdfParse(req.file.buffer)
     const sections = parsePdfText(data.text)
     res.json({ sections, pageCount: data.numpages })
@@ -85,6 +86,7 @@ async function bulkImport(req, res) {
     description: description || null,
   })
 
+  const createdSections = []
   for (let si = 0; si < (sections || []).length; si++) {
     const s = sections[si]
     const section = await ExamSection.create({
@@ -95,6 +97,7 @@ async function bulkImport(req, res) {
       passage: s.passage || null,
       audio_url: null,
     })
+    createdSections.push({ id: section.id, title: section.title, type: section.type, order_index: si })
     for (let qi = 0; qi < (s.questions || []).length; qi++) {
       const q = s.questions[qi]
       if (!q.question_text || q.correct_answer === '' || q.correct_answer == null) continue
@@ -109,7 +112,7 @@ async function bulkImport(req, res) {
     }
   }
 
-  res.status(201).json({ message: 'Đã nhập đề thi thành công', exam_id: exam.id })
+  res.status(201).json({ message: 'Đã nhập đề thi thành công', exam_id: exam.id, sections: createdSections })
 }
 
 async function adminListExams(req, res) {
