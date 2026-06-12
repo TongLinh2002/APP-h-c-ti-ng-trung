@@ -48,42 +48,52 @@
           {{ section.title }}
         </h4>
 
-        <!-- Listening: audio player -->
-        <div v-if="section.type === 'listening' && section.audio_url" class="audio-block">
-          <audio :src="section.audio_url" controls class="audio-player" />
-        </div>
-
-        <!-- Reading: passage -->
-        <div v-if="section.type === 'reading' && section.passage" class="passage-block">
-          <pre class="passage-text">{{ section.passage }}</pre>
-        </div>
-
-        <!-- Questions -->
-        <div v-for="(q, qi) in section.questions" :key="q.id" class="question-block">
-          <p class="q-text"><span class="q-num">{{ qi + 1 }}.</span> {{ q.question_text }}</p>
-
-          <!-- Multiple choice -->
-          <div v-if="q.options" class="options-list">
-            <label v-for="(opt, i) in q.options" :key="i" class="option-label">
-              <input
-                type="radio"
-                :name="`q${q.id}`"
-                :value="String(i)"
-                v-model="answers[q.id]"
+        <!-- Listening: 2-column — sticky audio left, questions right -->
+        <div v-if="section.type === 'listening'" class="listening-layout">
+          <div class="listening-audio-panel">
+            <div class="listening-audio-card">
+              <p class="listening-audio-heading">🎵 Phần nghe</p>
+              <audio
+                v-if="section.audio_url"
+                :src="section.audio_url"
+                controls
+                class="audio-player-main"
               />
-              <span>{{ ['A','B','C','D'][i] }}. {{ opt }}</span>
-            </label>
+              <p v-else class="listening-no-audio">Chưa có file audio</p>
+              <p class="listening-tip">{{ section.questions.length }} câu hỏi cho phần này</p>
+            </div>
           </div>
 
-          <!-- Fill in blank -->
-          <input
-            v-else
-            type="text"
-            v-model="answers[q.id]"
-            class="fill-input"
-            placeholder="Nhập câu trả lời..."
-          />
+          <div class="listening-questions">
+            <div v-for="(q, qi) in section.questions" :key="q.id" class="question-block">
+              <p class="q-text"><span class="q-num">{{ qi + 1 }}.</span> {{ q.question_text }}</p>
+              <div v-if="q.options" class="options-list">
+                <label v-for="(opt, i) in q.options" :key="i" class="option-label">
+                  <input type="radio" :name="`q${q.id}`" :value="String(i)" v-model="answers[q.id]" />
+                  <span>{{ ['A','B','C','D'][i] }}. {{ opt }}</span>
+                </label>
+              </div>
+              <input v-else type="text" v-model="answers[q.id]" class="fill-input" placeholder="Nhập câu trả lời..." />
+            </div>
+          </div>
         </div>
+
+        <!-- Reading + Fill: passage (if any) then questions -->
+        <template v-else>
+          <div v-if="section.type === 'reading' && section.passage" class="passage-block">
+            <pre class="passage-text">{{ section.passage }}</pre>
+          </div>
+          <div v-for="(q, qi) in section.questions" :key="q.id" class="question-block">
+            <p class="q-text"><span class="q-num">{{ qi + 1 }}.</span> {{ q.question_text }}</p>
+            <div v-if="q.options" class="options-list">
+              <label v-for="(opt, i) in q.options" :key="i" class="option-label">
+                <input type="radio" :name="`q${q.id}`" :value="String(i)" v-model="answers[q.id]" />
+                <span>{{ ['A','B','C','D'][i] }}. {{ opt }}</span>
+              </label>
+            </div>
+            <input v-else type="text" v-model="answers[q.id]" class="fill-input" placeholder="Nhập câu trả lời..." />
+          </div>
+        </template>
       </div>
 
       <div class="submit-row">
@@ -213,4 +223,19 @@ function displayAnswer(question, answer) {
 .result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
 .btn-primary { padding: 12px 28px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
 .btn-secondary { padding: 12px 28px; background: white; color: #d32f2f; border: 2px solid #d32f2f; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+
+/* ── Listening section: 2-column layout ── */
+.exam-taker { max-width: 960px; }
+.listening-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+.listening-audio-panel { position: sticky; top: 80px; }
+.listening-audio-card { background: #e3f2fd; border: 2px solid #1565c0; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.listening-audio-heading { font-size: 1rem; font-weight: 700; color: #1565c0; margin: 0; }
+.audio-player-main { width: 100%; border-radius: 4px; }
+.listening-tip { font-size: 0.8rem; color: #1565c0; text-align: center; margin: 0; }
+.listening-no-audio { font-size: 0.85rem; color: #888; text-align: center; padding: 12px 0; }
+.listening-questions { min-width: 0; }
+@media (max-width: 680px) {
+  .listening-layout { grid-template-columns: 1fr; }
+  .listening-audio-panel { position: static; }
+}
 </style>
