@@ -33,11 +33,14 @@ export default {
   },
   learn: {
     title: 'Học từ vựng', loading: 'Đang tải...',
-    sessionDone: 'Hoàn thành phiên học hôm nay!', studyAgain: 'Học lại',
-    noCards: 'Không có thẻ nào cần ôn hôm nay!',
-    noCardsSub: 'Quay lại sau để ôn tập tiếp.',
-    review: 'ôn tập', new: 'từ mới',
+    chooseLevel: 'Chọn cấp HSK bạn muốn học',
+    sessionDone: 'Hoàn thành phiên học!', studyAgain: 'Học lại', chooseOther: 'Chọn cấp khác',
+    back: 'Quay lại',
+    noCards: 'Không có thẻ nào cần ôn!',
+    noCardsSub: 'Tất cả từ đã được ôn đúng hạn.',
+    review: 'ôn tập', new: 'từ mới', words: 'từ',
     newWord: 'Từ mới', reviewWord: 'Ôn tập',
+    allDone: 'Đã hoàn thành', noVocab: 'Chưa có từ vựng',
   },
   flashcard: {
     hint: 'Nhấn để xem nghĩa ↓',

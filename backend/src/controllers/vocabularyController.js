@@ -12,29 +12,30 @@ async function getVocabulary(req, res) {
 async function getReviewCards(req, res) {
   const userId = req.userId
   const now = new Date()
+  const filterLevel = req.query.hsk_level ? parseInt(req.query.hsk_level) : null
 
-  // Due cards (SRS scheduled review)
+  // Due cards filtered by HSK level if provided
+  const vocabWhere = filterLevel ? { hsk_level: filterLevel } : {}
   const dueCards = await UserVocabularyProgress.findAll({
     where: { user_id: userId, next_review_at: { [Op.lte]: now } },
-    include: [{ model: Vocabulary }],
-    limit: 20,
+    include: [{ model: Vocabulary, where: vocabWhere }],
+    limit: 30,
   })
 
-  // New cards — vocabulary not yet studied, up to (20 - dueCards.length)
-  const newLimit = Math.max(0, 20 - dueCards.length)
+  // New cards — vocabulary not yet studied
+  const newLimit = Math.max(0, 30 - dueCards.length)
   let newCardWrapped = []
 
   if (newLimit > 0) {
-    const user = await User.findByPk(userId, { attributes: ['current_hsk_level'] })
-    const hskLevel = user?.current_hsk_level || 1
-
     const seenRows = await UserVocabularyProgress.findAll({
       where: { user_id: userId },
       attributes: ['vocabulary_id'],
     })
     const seenIds = seenRows.map(r => r.vocabulary_id)
 
-    const whereClause = { hsk_level: { [Op.lte]: hskLevel } }
+    const whereClause = filterLevel
+      ? { hsk_level: filterLevel }
+      : { hsk_level: { [Op.between]: [1, 9] } }
     if (seenIds.length > 0) whereClause.id = { [Op.notIn]: seenIds }
 
     const newCards = await Vocabulary.findAll({
@@ -43,11 +44,39 @@ async function getReviewCards(req, res) {
       order: [['hsk_level', 'ASC'], ['id', 'ASC']],
     })
 
-    // Wrap to same shape as dueCards so Flashcard component works unchanged
     newCardWrapped = newCards.map(v => ({ Vocabulary: v.toJSON(), isNew: true }))
   }
 
   res.json([...dueCards, ...newCardWrapped])
+}
+
+async function getLevelStats(req, res) {
+  const userId = req.userId
+  const now = new Date()
+
+  const seenRows = await UserVocabularyProgress.findAll({
+    where: { user_id: userId },
+    attributes: ['vocabulary_id'],
+  })
+  const seenIds = seenRows.map(r => r.vocabulary_id)
+
+  const result = {}
+  for (let level = 1; level <= 9; level++) {
+    const total = await Vocabulary.count({ where: { hsk_level: level } })
+
+    const newWhere = { hsk_level: level }
+    if (seenIds.length > 0) newWhere.id = { [Op.notIn]: seenIds }
+    const newCount = await Vocabulary.count({ where: newWhere })
+
+    const dueCount = await UserVocabularyProgress.count({
+      where: { user_id: userId, next_review_at: { [Op.lte]: now } },
+      include: [{ model: Vocabulary, where: { hsk_level: level } }],
+    })
+
+    result[level] = { total, new: newCount, due: dueCount }
+  }
+
+  res.json(result)
 }
 
 async function submitReview(req, res) {
@@ -107,4 +136,4 @@ async function getSessionStats(req, res) {
   res.json({ dueCount, newCount, totalNew: newCount })
 }
 
-module.exports = { getVocabulary, getReviewCards, submitReview, getSessionStats }
+module.exports = { getVocabulary, getReviewCards, submitReview, getSessionStats, getLevelStats }

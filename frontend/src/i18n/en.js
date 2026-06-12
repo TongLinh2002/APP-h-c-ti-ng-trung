@@ -33,11 +33,14 @@ export default {
   },
   learn: {
     title: 'Vocabulary', loading: 'Loading...',
-    sessionDone: "Today's session complete!", studyAgain: 'Study Again',
-    noCards: 'No cards due for review today!',
-    noCardsSub: 'Come back later for more practice.',
-    review: 'review', new: 'new',
+    chooseLevel: 'Choose an HSK level to study',
+    sessionDone: 'Session complete!', studyAgain: 'Study Again', chooseOther: 'Choose another level',
+    back: 'Back',
+    noCards: 'No cards to review!',
+    noCardsSub: 'All words reviewed on schedule.',
+    review: 'review', new: 'new', words: 'words',
     newWord: 'New', reviewWord: 'Review',
+    allDone: 'All done', noVocab: 'No vocabulary yet',
   },
   flashcard: {
     hint: 'Tap to reveal ↓',
