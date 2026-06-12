@@ -77,6 +77,16 @@ async function connectWithRetry(retries = 10, delay = 3000) {
 async function start() {
   await connectWithRetry()
   await sequelize.sync()
+
+  const { User } = require('./src/models')
+  const userCount = await User.count()
+  if (userCount === 0) {
+    console.log('Empty database detected — running initial seed...')
+    const runSeed = require('./seed')
+    await runSeed()
+    console.log('Initial seed complete.')
+  }
+
   app.listen(PORT, () => console.log(`Backend running on port ${PORT}`))
 }
 

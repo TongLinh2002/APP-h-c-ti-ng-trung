@@ -206,5 +206,8 @@ INSERT INTO Downloads (title, description, file_url, file_type, hsk_level, creat
 --                  └─── UserChallengeScores
 --
 --  Downloads  (độc lập, không FK)
+
+
+
 --
 -- ============================================================

@@ -4,8 +4,7 @@ const { User, Vocabulary, Lesson, LessonQuestion, Download } = require('./src/mo
 const bcrypt = require('bcryptjs')
 
 async function seed() {
-  await sequelize.sync({ force: true })
-  console.log('Database synced.')
+  console.log('Seeding database...')
 
   // Admin user
   const admin_hash = await bcrypt.hash('admin123', 10)
@@ -135,16 +134,16 @@ async function seed() {
 
   console.log('\n✅ Seed hoàn tất!')
   console.log('Demo account: demo@example.com / 123456')
-  await sequelize.close()
 }
 
 // Chạy trực tiếp: node seed.js
-// Dùng như module: require('./seed')
 if (require.main === module) {
-  seed().catch((err) => {
-    console.error('Seed failed:', err)
-    process.exit(1)
-  })
+  seed()
+    .then(() => sequelize.close())
+    .catch((err) => {
+      console.error('Seed failed:', err)
+      process.exit(1)
+    })
 }
 
 module.exports = seed

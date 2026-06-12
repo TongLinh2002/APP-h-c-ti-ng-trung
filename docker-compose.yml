@@ -40,6 +40,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      SEED_SECRET: ${SEED_SECRET}
     depends_on:
       db:
         condition: service_healthy
