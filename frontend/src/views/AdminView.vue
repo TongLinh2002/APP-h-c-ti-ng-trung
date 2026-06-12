@@ -220,7 +220,8 @@
     <div v-if="activeTab === 'exams'" class="panel">
       <h2>Đề thi</h2>
 
-      <form class="form-card" @submit.prevent="submitExamForm">
+      <form class="form-card exam-create-card" @submit.prevent="submitExamForm">
+        <p class="exam-create-title">🎵 Tạo đề thi + tải lên file âm thanh</p>
         <div class="form-row">
           <input v-model="examForm.title" placeholder="Tên đề thi *" required />
           <select v-model="examForm.exam_type" required>
@@ -232,7 +233,21 @@
           </select>
           <input v-model.number="examForm.time_limit_minutes" type="number" min="1" max="240" placeholder="Thời gian (phút) *" required style="width:150px" />
         </div>
-        <input v-model="examForm.description" placeholder="Mô tả (tuỳ chọn)" />
+
+        <div class="exam-audio-upload-row">
+          <label class="exam-audio-label">
+            <input type="file" accept=".mp3,audio/*" @change="e => examAudioFile = e.target.files[0]" />
+            <span class="exam-audio-icon">🎵</span>
+            <span class="exam-audio-text">
+              {{ examAudioFile ? examAudioFile.name : 'Chọn file MP3 cho phần nghe...' }}
+            </span>
+          </label>
+          <button v-if="examAudioFile" type="button" class="btn-del" @click="examAudioFile = null">✕ Bỏ file</button>
+        </div>
+        <p class="exam-audio-hint">
+          {{ examAudioFile ? '✓ Sẽ tự tạo phần nghe với file này sau khi tạo đề.' : 'Nếu không chọn file, đề thi sẽ được tạo không có phần nghe (có thể thêm sau).' }}
+        </p>
+
         <button type="submit" class="btn-primary">+ Tạo đề thi</button>
       </form>
       <div v-if="examMsg" class="msg" :class="examMsg.type">{{ examMsg.text }}</div>
@@ -635,6 +650,7 @@ async function setRole(id, role) {
 const exams = ref([])
 const examMsg = ref(null)
 const examForm = ref({ title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' })
+const examAudioFile = ref(null)
 const expandedExam = ref(null)
 const sectionForms = ref({})
 const questionForms = ref({})
@@ -645,7 +661,17 @@ async function loadExams() {
 
 async function submitExamForm() {
   try {
-    await adminCreateExam(examForm.value)
+    const exam = await adminCreateExam(examForm.value)
+    // Auto-create listening section with audio if file provided
+    if (examAudioFile.value) {
+      const fd = new FormData()
+      fd.append('title', 'Phần nghe')
+      fd.append('type', 'listening')
+      fd.append('order_index', '0')
+      fd.append('file', examAudioFile.value)
+      await adminCreateSection(exam.id, fd)
+      examAudioFile.value = null
+    }
     examMsg.value = { type: 'success', text: 'Đã tạo đề thi!' }
     examForm.value = { title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' }
     await loadExams()
@@ -861,6 +887,17 @@ textarea { resize: vertical; }
 .section-subtitle { font-size: 0.95rem; font-weight: 600; color: #555; margin-bottom: 12px; }
 .vocab-count { font-size: 0.82rem; color: #aaa; margin-left: 8px; }
 .filter-row { display: flex; align-items: center; margin-bottom: 12px; }
+
+/* ── Exam create with audio ── */
+.exam-create-card { border: 2px dashed #ef9a9a; background: #fff8f8; }
+.exam-create-title { font-size: 0.95rem; font-weight: 700; color: #c62828; margin: 0 0 4px; }
+.exam-audio-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.exam-audio-label { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: white; border: 2px dashed #ef9a9a; border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.exam-audio-label:hover { border-color: #d32f2f; background: #fff5f5; }
+.exam-audio-label input[type="file"] { display: none; }
+.exam-audio-icon { font-size: 1.5rem; }
+.exam-audio-text { font-size: 14px; color: #555; flex: 1; }
+.exam-audio-hint { font-size: 0.78rem; color: #888; margin: 2px 0 0; }
 
 /* ── Exam admin ── */
 .exam-admin-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
