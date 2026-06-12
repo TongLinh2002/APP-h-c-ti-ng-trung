@@ -55,7 +55,9 @@ async function submitExam(req, res) {
   const results = answers.map(({ question_id, answer }) => {
     const q = questionMap[question_id]
     if (!q) return { question_id, correct: false, correct_answer: null, user_answer: answer, points: 0 }
-    const correct = q.correct_answer.trim().toLowerCase() === String(answer || '').trim().toLowerCase()
+    const correct = q.correct_answer && q.correct_answer.trim()
+      ? q.correct_answer.trim().toLowerCase() === String(answer || '').trim().toLowerCase()
+      : false  // essay / writing with no stored answer — always 0 pts
     if (correct) score += q.points
     return { question_id, correct, correct_answer: q.correct_answer, user_answer: answer, points: correct ? q.points : 0 }
   })
