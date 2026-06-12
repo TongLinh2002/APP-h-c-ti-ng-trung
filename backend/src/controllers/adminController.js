@@ -136,7 +136,8 @@ async function createDownload(req, res) {
     const ext = path.extname(req.file.originalname).toLowerCase()
     if (ext === '.xlsx' || ext === '.xls') {
       const hskDefault = hsk_level ? parseInt(hsk_level) : null
-      const result = parseVocabXlsx(req.file.path, hskDefault)
+      const filePath = req.file.path || path.join(req.file.destination, req.file.filename)
+      const result = parseVocabXlsx(filePath, hskDefault)
       const valid = result.words.filter(w => w.hsk_level >= 1 && w.hsk_level <= 9)
       if (valid.length > 0) {
         await Vocabulary.bulkCreate(valid, { ignoreDuplicates: true })

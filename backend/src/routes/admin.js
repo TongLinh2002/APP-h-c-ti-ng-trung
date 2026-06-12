@@ -5,11 +5,12 @@ const path = require('path')
 const verifyAdmin = require('../middleware/verifyAdmin')
 const ctrl = require('../controllers/adminController')
 
+const UPLOAD_DIR = path.join(__dirname, '../../public/uploads')
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../../public/uploads'),
-  filename: (req, file) => {
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    return unique + path.extname(file.originalname)
+    cb(null, unique + path.extname(file.originalname))
   },
 })
 const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } })
