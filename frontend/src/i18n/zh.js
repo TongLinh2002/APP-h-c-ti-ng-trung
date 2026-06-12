@@ -90,7 +90,7 @@ export default {
   },
   admin: {
     title: '管理', users: '用户', downloads: '资料',
-    vocabulary: '词汇', lessons: '课程',
+    vocabulary: '词汇', lessons: '课程', exams: '考题',
     save: '保存', delete: '删除', create: '新建', update: '更新',
     confirmDelete: '确认删除？', loading: '加载中...',
     noData: '暂无数据。', role: '权限',

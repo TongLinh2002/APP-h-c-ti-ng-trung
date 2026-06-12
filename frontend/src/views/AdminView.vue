@@ -216,6 +216,106 @@
       </table>
     </div>
 
+    <!-- EXAMS TAB -->
+    <div v-if="activeTab === 'exams'" class="panel">
+      <h2>Đề thi</h2>
+
+      <form class="form-card" @submit.prevent="submitExamForm">
+        <div class="form-row">
+          <input v-model="examForm.title" placeholder="Tên đề thi *" required />
+          <select v-model="examForm.exam_type" required>
+            <option value="hsk">HSK</option>
+            <option value="hskk">HSKK</option>
+          </select>
+          <select v-model="examForm.hsk_level" required>
+            <option v-for="n in 9" :key="n" :value="n">HSK {{ n }}</option>
+          </select>
+          <input v-model.number="examForm.time_limit_minutes" type="number" min="1" max="240" placeholder="Thời gian (phút) *" required style="width:150px" />
+        </div>
+        <input v-model="examForm.description" placeholder="Mô tả (tuỳ chọn)" />
+        <button type="submit" class="btn-primary">+ Tạo đề thi</button>
+      </form>
+      <div v-if="examMsg" class="msg" :class="examMsg.type">{{ examMsg.text }}</div>
+
+      <div v-for="exam in exams" :key="exam.id" class="exam-admin-card">
+        <div class="exam-admin-header" @click="toggleExam(exam.id)">
+          <span>
+            <strong>{{ exam.title }}</strong>
+            <span class="badge exam-badge">{{ exam.exam_type.toUpperCase() }} {{ exam.hsk_level }}</span>
+            <span class="badge-grey">{{ exam.time_limit_minutes }} phút</span>
+          </span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span style="color:#888;font-size:0.85rem">{{ exam.sections?.length || 0 }} phần</span>
+            <button class="btn-del" @click.stop="deleteExam(exam.id)">Xóa đề</button>
+            <span>{{ expandedExam === exam.id ? '▲' : '▼' }}</span>
+          </span>
+        </div>
+
+        <div v-if="expandedExam === exam.id" class="exam-admin-body">
+          <!-- Add section form -->
+          <div class="section-form">
+            <h4>+ Thêm phần thi</h4>
+            <div class="form-row">
+              <input v-model="sectionForms[exam.id].title" placeholder="Tên phần *" />
+              <select v-model="sectionForms[exam.id].type">
+                <option value="listening">Nghe</option>
+                <option value="reading">Đọc</option>
+                <option value="fill">Điền từ</option>
+              </select>
+              <input v-model.number="sectionForms[exam.id].order_index" type="number" placeholder="Thứ tự" style="width:80px" />
+            </div>
+            <textarea
+              v-if="sectionForms[exam.id].type === 'reading'"
+              v-model="sectionForms[exam.id].passage"
+              placeholder="Đoạn văn bài đọc..."
+              rows="4"
+            />
+            <label v-if="sectionForms[exam.id].type === 'listening'" class="file-label">
+              <input type="file" accept="audio/*" @change="e => sectionForms[exam.id].audioFile = e.target.files[0]" />
+              {{ sectionForms[exam.id].audioFile?.name || 'Chọn file audio' }}
+            </label>
+            <button class="btn-primary" @click="submitSection(exam.id)" style="margin-top:8px">Thêm phần</button>
+          </div>
+
+          <!-- Existing sections -->
+          <div v-for="section in exam.sections" :key="section.id" class="section-admin-card">
+            <div class="section-admin-header">
+              <strong>{{ section.title }}</strong>
+              <span class="badge exam-badge">{{ section.type }}</span>
+              <button class="btn-del" @click="deleteSection(section.id)">Xóa phần</button>
+            </div>
+
+            <div v-for="q in section.questions" :key="q.id" class="question-admin-row">
+              <span class="q-preview">{{ q.question_text }}</span>
+              <button class="btn-del" @click="deleteQuestion(q.id)">Xóa</button>
+            </div>
+
+            <div v-if="questionForms[section.id]" class="question-form">
+              <textarea v-model="questionForms[section.id].question_text" placeholder="Câu hỏi *" rows="2" />
+              <div v-if="!questionForms[section.id].fill_mode">
+                <div v-for="(_, i) in questionForms[section.id].options" :key="i" class="form-row" style="margin-bottom:4px">
+                  <label style="min-width:24px">{{ ['A','B','C','D'][i] }}.</label>
+                  <input v-model="questionForms[section.id].options[i]" :placeholder="`Đáp án ${['A','B','C','D'][i]}`" />
+                  <label style="display:flex;align-items:center;gap:4px">
+                    <input type="radio" :value="i" v-model="questionForms[section.id].correct_index" />
+                    Đúng
+                  </label>
+                </div>
+              </div>
+              <input v-else v-model="questionForms[section.id].correct_fill" placeholder="Đáp án đúng (điền từ)" />
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn-primary" @click="submitQuestion(section.id)">Lưu câu hỏi</button>
+                <button class="btn-del" @click="delete questionForms[section.id]">Hủy</button>
+              </div>
+            </div>
+            <button v-else class="btn-add-q" @click="initQuestionForm(section.id, section.type === 'fill')">
+              + Thêm câu hỏi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- USERS TAB -->
     <div v-if="activeTab === 'users'" class="panel">
       <h2>{{ $t('admin.users') }}</h2>
@@ -244,6 +344,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import api from '../services/api'
+import {
+  adminListExams, adminCreateExam, adminDeleteExam,
+  adminCreateSection, adminDeleteSection,
+  adminCreateQuestion, adminDeleteQuestion,
+} from '../services/examService'
 
 const { t } = useI18n()
 
@@ -251,6 +356,7 @@ const tabs = [
   { key: 'downloads', i18nKey: 'admin.downloads' },
   { key: 'vocabulary', i18nKey: 'admin.vocabulary' },
   { key: 'lessons', i18nKey: 'admin.lessons' },
+  { key: 'exams', i18nKey: 'admin.exams' },
   { key: 'users', i18nKey: 'admin.users' },
 ]
 const activeTab = ref('downloads')
@@ -433,8 +539,92 @@ async function setRole(id, role) {
   setTimeout(() => { userMsg.value = null }, 3000)
 }
 
+// Exams
+const exams = ref([])
+const examMsg = ref(null)
+const examForm = ref({ title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' })
+const expandedExam = ref(null)
+const sectionForms = ref({})
+const questionForms = ref({})
+
+async function loadExams() {
+  exams.value = await adminListExams()
+}
+
+async function submitExamForm() {
+  try {
+    await adminCreateExam(examForm.value)
+    examMsg.value = { type: 'success', text: 'Đã tạo đề thi!' }
+    examForm.value = { title: '', exam_type: 'hsk', hsk_level: 1, time_limit_minutes: 90, description: '' }
+    await loadExams()
+  } catch (e) {
+    examMsg.value = { type: 'error', text: e.response?.data?.message || 'Lỗi tạo đề' }
+  }
+  setTimeout(() => { examMsg.value = null }, 3000)
+}
+
+async function deleteExam(id) {
+  if (!confirm(t('admin.confirmDelete'))) return
+  await adminDeleteExam(id)
+  await loadExams()
+}
+
+function toggleExam(id) {
+  expandedExam.value = expandedExam.value === id ? null : id
+  if (!sectionForms.value[id]) {
+    sectionForms.value[id] = { title: '', type: 'listening', order_index: 0, passage: '', audioFile: null }
+  }
+}
+
+async function submitSection(examId) {
+  const f = sectionForms.value[examId]
+  const fd = new FormData()
+  fd.append('title', f.title)
+  fd.append('type', f.type)
+  fd.append('order_index', f.order_index)
+  if (f.passage) fd.append('passage', f.passage)
+  if (f.audioFile) fd.append('file', f.audioFile)
+  await adminCreateSection(examId, fd)
+  sectionForms.value[examId] = { title: '', type: 'listening', order_index: 0, passage: '', audioFile: null }
+  await loadExams()
+}
+
+async function deleteSection(sid) {
+  if (!confirm(t('admin.confirmDelete'))) return
+  await adminDeleteSection(sid)
+  await loadExams()
+}
+
+function initQuestionForm(sid, isFill) {
+  questionForms.value[sid] = {
+    question_text: '',
+    options: ['', '', '', ''],
+    correct_index: 0,
+    correct_fill: '',
+    fill_mode: isFill,
+  }
+}
+
+async function submitQuestion(sid) {
+  const f = questionForms.value[sid]
+  const payload = {
+    question_text: f.question_text,
+    correct_answer: f.fill_mode ? f.correct_fill : String(f.correct_index),
+    options: f.fill_mode ? null : f.options,
+  }
+  await adminCreateQuestion(sid, payload)
+  delete questionForms.value[sid]
+  await loadExams()
+}
+
+async function deleteQuestion(qid) {
+  if (!confirm(t('admin.confirmDelete'))) return
+  await adminDeleteQuestion(qid)
+  await loadExams()
+}
+
 onMounted(async () => {
-  await Promise.all([loadDownloads(), loadVocab(), loadLessons(), loadUsers()])
+  await Promise.all([loadDownloads(), loadVocab(), loadLessons(), loadExams(), loadUsers()])
 })
 </script>
 
@@ -513,4 +703,22 @@ textarea { resize: vertical; }
 .section-subtitle { font-size: 0.95rem; font-weight: 600; color: #555; margin-bottom: 12px; }
 .vocab-count { font-size: 0.82rem; color: #aaa; margin-left: 8px; }
 .filter-row { display: flex; align-items: center; margin-bottom: 12px; }
+
+/* ── Exam admin ── */
+.exam-admin-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.exam-admin-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; user-select: none; }
+.exam-admin-header:hover { background: #fafafa; }
+.exam-admin-body { padding: 12px 16px 16px; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 12px; }
+.badge.exam-badge { background: #fce4ec; color: #c62828; }
+.badge-grey { background: #f5f5f5; color: #666; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.section-form { background: #f9fbe7; border: 1px solid #e6ee9c; border-radius: 6px; padding: 12px 14px; }
+.section-form h4 { font-size: 0.9rem; font-weight: 600; color: #558b2f; margin-bottom: 8px; }
+.section-admin-card { background: #fafafa; border: 1px solid #eeeeee; border-radius: 6px; padding: 10px 14px; }
+.section-admin-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.question-admin-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; }
+.question-admin-row:last-of-type { border-bottom: none; }
+.q-preview { font-size: 0.85rem; color: #555; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.question-form { background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.btn-add-q { margin-top: 8px; background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.btn-add-q:hover { background: #bbdefb; }
 </style>

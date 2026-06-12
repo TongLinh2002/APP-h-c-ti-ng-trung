@@ -90,7 +90,7 @@ export default {
   },
   admin: {
     title: 'Quản trị', users: 'Người dùng', downloads: 'Tài liệu',
-    vocabulary: 'Từ vựng', lessons: 'Bài học',
+    vocabulary: 'Từ vựng', lessons: 'Bài học', exams: 'Đề thi',
     save: 'Lưu', delete: 'Xóa', create: 'Tạo mới', update: 'Cập nhật',
     confirmDelete: 'Xác nhận xóa?', loading: 'Đang tải...',
     noData: 'Chưa có dữ liệu.', role: 'Quyền',

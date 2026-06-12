@@ -90,7 +90,7 @@ export default {
   },
   admin: {
     title: 'Admin', users: 'Users', downloads: 'Resources',
-    vocabulary: 'Vocabulary', lessons: 'Lessons',
+    vocabulary: 'Vocabulary', lessons: 'Lessons', exams: 'Exams',
     save: 'Save', delete: 'Delete', create: 'Create', update: 'Update',
     confirmDelete: 'Confirm delete?', loading: 'Loading...',
     noData: 'No data.', role: 'Role',
