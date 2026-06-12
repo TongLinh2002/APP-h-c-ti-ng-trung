@@ -5,13 +5,13 @@
 
     <!-- Links for logged-in users -->
     <template v-if="authStore.isLoggedIn">
-      <RouterLink to="/dashboard">{{ $t('nav.dashboard') }}</RouterLink>
-      <RouterLink to="/learn">{{ $t('nav.learn') }}</RouterLink>
       <RouterLink to="/journey">{{ $t('nav.journey') }}</RouterLink>
+      <RouterLink to="/learn">{{ $t('nav.learn') }}</RouterLink>
       <RouterLink to="/challenge">{{ $t('nav.challenge') }}</RouterLink>
       <RouterLink to="/listen">{{ $t('nav.listen') }}</RouterLink>
       <RouterLink to="/read">{{ $t('nav.read') }}</RouterLink>
       <RouterLink to="/resources">{{ $t('nav.resources') }}</RouterLink>
+      <RouterLink to="/dashboard">{{ $t('nav.dashboard') }}</RouterLink>
       <RouterLink v-if="authStore.isAdmin" to="/admin" class="btn-admin">{{ $t('nav.admin') }}</RouterLink>
     </template>
 
