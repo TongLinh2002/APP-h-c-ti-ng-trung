@@ -1,5 +1,6 @@
 const { User, Download, Vocabulary, Lesson, LessonQuestion } = require('../models')
 const path = require('path')
+const fs = require('fs')
 const XLSX = require('xlsx')
 
 // Detect HSK level from sheet name
@@ -174,6 +175,38 @@ async function deleteDownload(req, res) {
 
 // ── VOCABULARY ────────────────────────────────────────────────────────────────
 
+async function previewVocabImport(req, res) {
+  if (!req.file) return res.status(400).json({ message: 'Cần upload file xlsx hoặc xls' })
+  const ext = path.extname(req.file.originalname).toLowerCase()
+  if (ext !== '.xlsx' && ext !== '.xls') {
+    return res.status(400).json({ message: 'Chỉ chấp nhận file xlsx hoặc xls' })
+  }
+  const filePath = req.file.path || path.join(req.file.destination, req.file.filename)
+  const result = parseVocabXlsx(filePath, null)
+  res.json({
+    fileName: req.file.originalname,
+    tempFile: req.file.filename,
+    sheets: result.sheets,
+    total: result.words.length,
+    byLevel: result.byLevel,
+    words: result.words,
+  })
+}
+
+async function confirmVocabImport(req, res) {
+  const { tempFile } = req.body
+  if (!tempFile) return res.status(400).json({ message: 'Thiếu tempFile' })
+  const filePath = path.join(__dirname, '../../public/uploads', tempFile)
+  if (!fs.existsSync(filePath)) {
+    return res.status(400).json({ message: 'File tạm không còn tồn tại, hãy upload lại' })
+  }
+  const result = parseVocabXlsx(filePath, null)
+  const valid = result.words.filter(w => w.hsk_level >= 1 && w.hsk_level <= 9)
+  if (valid.length === 0) return res.status(400).json({ message: 'Không có từ vựng hợp lệ để nhập' })
+  await Vocabulary.bulkCreate(valid, { ignoreDuplicates: true })
+  res.json({ imported: valid.length, byLevel: result.byLevel, sheets: result.sheets })
+}
+
 async function listVocabulary(req, res) {
   const { hsk_level } = req.query
   const where = hsk_level ? { hsk_level: parseInt(hsk_level) } : {}
@@ -230,6 +263,7 @@ async function deleteLesson(req, res) {
 module.exports = {
   listUsers, updateUserRole,
   listDownloads, createDownload, updateDownload, deleteDownload,
+  previewVocabImport, confirmVocabImport,
   listVocabulary, createVocabulary, deleteVocabulary,
   listLessons, createLesson, deleteLesson,
 }

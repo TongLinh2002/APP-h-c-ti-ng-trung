@@ -32,6 +32,8 @@ router.post('/downloads', uploadSingle, ctrl.createDownload)
 router.put('/downloads/:id', uploadSingle, ctrl.updateDownload)
 router.delete('/downloads/:id', ctrl.deleteDownload)
 
+router.post('/vocabulary/preview', uploadSingle, ctrl.previewVocabImport)
+router.post('/vocabulary/import', ctrl.confirmVocabImport)
 router.get('/vocabulary', ctrl.listVocabulary)
 router.post('/vocabulary', ctrl.createVocabulary)
 router.delete('/vocabulary/:id', ctrl.deleteVocabulary)
