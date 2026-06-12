@@ -189,7 +189,14 @@ async function submitDownload() {
     if (dlForm.value.file) fd.append('file', dlForm.value.file)
     else fd.append('file_url', dlForm.value.file_url)
     const { data } = await api.post('/admin/downloads', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-    const importNote = data.imported > 0 ? ` Đã nhập ${data.imported} từ vựng vào database!` : ''
+    let importNote = ''
+    if (data.imported > 0) {
+      const levelSummary = Object.entries(data.byLevel)
+        .sort(([a], [b]) => a - b)
+        .map(([lvl, cnt]) => `HSK ${lvl}: ${cnt} từ`)
+        .join(' · ')
+      importNote = ` Đã nhập ${data.imported} từ vựng (${levelSummary})`
+    }
     dlMsg.value = { type: 'success', text: `Đã thêm tài liệu!${importNote}` }
     dlForm.value = { title: '', description: '', file_url: '', file_type: '', hsk_level: '', file: null }
     await loadDownloads()
