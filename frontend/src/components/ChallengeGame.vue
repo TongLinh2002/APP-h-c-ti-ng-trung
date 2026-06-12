@@ -25,15 +25,21 @@ const props = defineProps({ question: Object, currentIndex: Number, total: Numbe
 const emit = defineEmits(['answer'])
 const chosen = ref(null)
 const answered = ref(false)
+const showFeedback = ref(false)
 const timeLeft = ref(15)
 let timer = null
 
-watch(() => props.question, () => { chosen.value = null; answered.value = false; timeLeft.value = 15; startTimer() }, { immediate: true })
+watch(() => props.question, () => {
+  chosen.value = null
+  answered.value = false
+  showFeedback.value = false
+  timeLeft.value = 15
+  startTimer()
+}, { immediate: true })
 onUnmounted(() => clearInterval(timer))
 
 function startTimer() {
   clearInterval(timer)
-  const start = Date.now()
   timer = setInterval(() => {
     timeLeft.value--
     if (timeLeft.value <= 0) { clearInterval(timer); if (!answered.value) autoSubmit() }
@@ -41,10 +47,21 @@ function startTimer() {
 }
 function pick(idx) {
   clearInterval(timer)
-  chosen.value = idx; answered.value = true
-  emit('answer', { selected_index: idx, time_ms: (15 - timeLeft.value) * 1000 })
+  chosen.value = idx
+  answered.value = true
+  showFeedback.value = true
 }
-function autoSubmit() { answered.value = true; emit('answer', { selected_index: -1, time_ms: 15000 }) }
+function autoSubmit() {
+  answered.value = true
+  showFeedback.value = true
+  chosen.value = -1
+}
+function advance() {
+  emit('answer', {
+    selected_index: chosen.value,
+    time_ms: chosen.value === -1 ? 15000 : (15 - timeLeft.value) * 1000,
+  })
+}
 </script>
 <style scoped>
 .challenge-header { display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: 600; }
