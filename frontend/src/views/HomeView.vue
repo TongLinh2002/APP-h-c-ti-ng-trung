@@ -28,12 +28,12 @@
         </RouterLink>
         <RouterLink to="/hsk" class="nav-card hsk">
           <span class="card-icon">📝</span>
-          <span class="card-title">HSK</span>
+          <span class="card-title">{{ $t('home.hsk') }}</span>
           <span class="card-desc">{{ $t('home.hskDesc') }}</span>
         </RouterLink>
         <RouterLink to="/hskk" class="nav-card hskk">
           <span class="card-icon">🎙️</span>
-          <span class="card-title">HSKK</span>
+          <span class="card-title">{{ $t('home.hskk') }}</span>
           <span class="card-desc">{{ $t('home.hskkDesc') }}</span>
         </RouterLink>
         <RouterLink to="/resources" class="nav-card resources">
@@ -94,10 +94,8 @@
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 const authStore = useAuthStore()
-const { t } = useI18n()
 </script>
 
 <style scoped>
