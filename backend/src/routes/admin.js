@@ -4,6 +4,7 @@ const multer = require('multer')
 const path = require('path')
 const verifyAdmin = require('../middleware/verifyAdmin')
 const ctrl = require('../controllers/adminController')
+const examCtrl = require('../controllers/examAdminController')
 
 const UPLOAD_DIR = path.join(__dirname, '../../public/uploads')
 const storage = multer.diskStorage({
@@ -41,5 +42,17 @@ router.delete('/vocabulary/:id', ctrl.deleteVocabulary)
 router.get('/lessons', ctrl.listLessons)
 router.post('/lessons', ctrl.createLesson)
 router.delete('/lessons/:id', ctrl.deleteLesson)
+
+// Exam admin routes
+router.get('/exams',                               examCtrl.adminListExams)
+router.post('/exams',                              examCtrl.createExam)
+router.put('/exams/:id',                           examCtrl.updateExam)
+router.delete('/exams/:id',                        examCtrl.deleteExam)
+router.post('/exams/:id/sections',   uploadSingle, examCtrl.createSection)
+router.put('/exams/sections/:sid',   uploadSingle, examCtrl.updateSection)
+router.delete('/exams/sections/:sid',              examCtrl.deleteSection)
+router.post('/exams/sections/:sid/questions',      examCtrl.createQuestion)
+router.put('/exams/questions/:qid',                examCtrl.updateQuestion)
+router.delete('/exams/questions/:qid',             examCtrl.deleteQuestion)
 
 module.exports = router
