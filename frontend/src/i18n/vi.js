@@ -1,7 +1,7 @@
 export default {
   nav: {
     home: 'Trang chủ', journey: 'Hành trình', learn: 'Học từ',
-    challenge: 'Thử thách', listen: 'Nghe', read: 'Đọc',
+    challenge: 'Thử thách', hsk: 'HSK', hskk: 'HSKK',
     resources: 'Tài liệu', dashboard: 'Tiến độ',
     admin: 'Quản trị', logout: 'Đăng xuất', login: 'Đăng nhập',
   },
@@ -52,17 +52,16 @@ export default {
     hint: 'Nhấn để xem nghĩa ↓',
     forget: '😵 Quên', hard: '😓 Khó', ok: '🙂 Ổn', easy: '😄 Dễ',
   },
-  listen: {
-    title: 'Luyện nghe', hskLevel: 'Cấp HSK:', loading: 'Đang tải...',
-    empty: 'Chưa có bài nghe cho cấp này.', back: '← Quay lại',
-    transcript: 'Xem transcript', questions: 'Câu hỏi:',
-    submit: 'Nộp bài', score: 'Điểm:', chooseAnother: 'Chọn bài khác',
-  },
-  read: {
-    title: 'Luyện đọc', hskLevel: 'Cấp HSK:', loading: 'Đang tải...',
-    empty: 'Chưa có bài đọc cho cấp này.', back: '← Quay lại',
-    questions: 'Câu hỏi:', submit: 'Nộp bài',
-    score: 'Điểm:', chooseAnother: 'Chọn bài khác',
+  exam: {
+    hskTitle: 'Đề thi HSK', hskkTitle: 'Đề thi HSKK',
+    filterLevel: 'Cấp HSK:', loading: 'Đang tải...', empty: 'Chưa có đề thi cho cấp này.',
+    minutes: 'phút', start: 'Bắt đầu làm', timeLeft: 'Thời gian còn lại:',
+    section: 'Phần', submit: 'Nộp bài',
+    confirmSubmit: 'Xác nhận nộp bài? Bạn chưa thể chỉnh sửa sau khi nộp.',
+    result: 'Kết quả', score: 'Điểm:',
+    yourAnswer: 'Bạn chọn:', correctAnswer: 'Đáp án đúng:', noAnswer: '(Không trả lời)',
+    retry: 'Làm lại', backToList: 'Chọn đề khác',
+    types: { listening: 'Nghe', reading: 'Đọc', fill: 'Điền từ' },
   },
   challenge: {
     title: 'Thử Thách Từ Vựng', selectLevel: 'Chọn cấp HSK để bắt đầu thử thách:',

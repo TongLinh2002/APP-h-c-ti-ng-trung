@@ -9,8 +9,8 @@ const routes = [
   // Yêu cầu đăng nhập (user + admin)
   { path: '/profile',    component: () => import('../views/ProfileView.vue'),    meta: { requiresAuth: true } },
   { path: '/learn',      component: () => import('../views/LearnView.vue'),      meta: { requiresAuth: true } },
-  { path: '/listen',     component: () => import('../views/ListenView.vue'),     meta: { requiresAuth: true } },
-  { path: '/read',       component: () => import('../views/ReadView.vue'),       meta: { requiresAuth: true } },
+  { path: '/hsk',        component: () => import('../views/HskView.vue'),        meta: { requiresAuth: true } },
+  { path: '/hskk',      component: () => import('../views/HskkView.vue'),       meta: { requiresAuth: true } },
   { path: '/dashboard',  component: () => import('../views/DashboardView.vue'),  meta: { requiresAuth: true } },
   { path: '/journey',    component: () => import('../views/JourneyView.vue'),    meta: { requiresAuth: true } },
   { path: '/challenge',  component: () => import('../views/ChallengeView.vue'),  meta: { requiresAuth: true } },

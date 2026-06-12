@@ -1,7 +1,7 @@
 export default {
   nav: {
     home: '首页', journey: '学习路线', learn: '词汇',
-    challenge: '挑战', listen: '听力', read: '阅读',
+    challenge: '挑战', hsk: 'HSK', hskk: 'HSKK',
     resources: '资料', dashboard: '进度',
     admin: '管理', logout: '退出', login: '登录',
   },
@@ -52,17 +52,16 @@ export default {
     hint: '点击查看释义 ↓',
     forget: '😵 忘了', hard: '😓 难', ok: '🙂 还好', easy: '😄 简单',
   },
-  listen: {
-    title: '听力练习', hskLevel: 'HSK级别：', loading: '加载中...',
-    empty: '该级别暂无听力课程。', back: '← 返回',
-    transcript: '查看文本', questions: '问题：',
-    submit: '提交', score: '得分：', chooseAnother: '选择其他',
-  },
-  read: {
-    title: '阅读练习', hskLevel: 'HSK级别：', loading: '加载中...',
-    empty: '该级别暂无阅读课程。', back: '← 返回',
-    questions: '问题：', submit: '提交',
-    score: '得分：', chooseAnother: '选择其他',
+  exam: {
+    hskTitle: 'HSK考试', hskkTitle: 'HSKK考试',
+    filterLevel: 'HSK级别:', loading: '加载中...', empty: '该级别暂无考题。',
+    minutes: '分钟', start: '开始考试', timeLeft: '剩余时间:',
+    section: '部分', submit: '提交',
+    confirmSubmit: '确认提交？提交后无法修改。',
+    result: '考试结果', score: '得分:',
+    yourAnswer: '您的答案:', correctAnswer: '正确答案:', noAnswer: '(未作答)',
+    retry: '重新考试', backToList: '选择其他考题',
+    types: { listening: '听力', reading: '阅读', fill: '填空' },
   },
   challenge: {
     title: '词汇挑战', selectLevel: '选择HSK级别开始挑战：',

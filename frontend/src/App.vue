@@ -8,8 +8,8 @@
       <RouterLink to="/journey">{{ $t('nav.journey') }}</RouterLink>
       <RouterLink to="/learn">{{ $t('nav.learn') }}</RouterLink>
       <RouterLink to="/challenge">{{ $t('nav.challenge') }}</RouterLink>
-      <RouterLink to="/listen">{{ $t('nav.listen') }}</RouterLink>
-      <RouterLink to="/read">{{ $t('nav.read') }}</RouterLink>
+      <RouterLink to="/hsk">{{ $t('nav.hsk') }}</RouterLink>
+      <RouterLink to="/hskk">{{ $t('nav.hskk') }}</RouterLink>
       <RouterLink to="/resources">{{ $t('nav.resources') }}</RouterLink>
       <RouterLink to="/dashboard">{{ $t('nav.dashboard') }}</RouterLink>
       <RouterLink v-if="authStore.isAdmin" to="/admin" class="btn-admin">{{ $t('nav.admin') }}</RouterLink>

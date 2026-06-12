@@ -1,7 +1,7 @@
 export default {
   nav: {
     home: 'Home', journey: 'Journey', learn: 'Vocabulary',
-    challenge: 'Challenge', listen: 'Listening', read: 'Reading',
+    challenge: 'Challenge', hsk: 'HSK', hskk: 'HSKK',
     resources: 'Resources', dashboard: 'Progress',
     admin: 'Admin', logout: 'Log out', login: 'Log in',
   },
@@ -52,17 +52,16 @@ export default {
     hint: 'Tap to reveal ↓',
     forget: '😵 Forgot', hard: '😓 Hard', ok: '🙂 OK', easy: '😄 Easy',
   },
-  listen: {
-    title: 'Listening Practice', hskLevel: 'HSK Level:', loading: 'Loading...',
-    empty: 'No listening lessons for this level.', back: '← Back',
-    transcript: 'View transcript', questions: 'Questions:',
-    submit: 'Submit', score: 'Score:', chooseAnother: 'Choose Another',
-  },
-  read: {
-    title: 'Reading Practice', hskLevel: 'HSK Level:', loading: 'Loading...',
-    empty: 'No reading lessons for this level.', back: '← Back',
-    questions: 'Questions:', submit: 'Submit',
-    score: 'Score:', chooseAnother: 'Choose Another',
+  exam: {
+    hskTitle: 'HSK Exams', hskkTitle: 'HSKK Exams',
+    filterLevel: 'HSK Level:', loading: 'Loading...', empty: 'No exams for this level.',
+    minutes: 'min', start: 'Start Exam', timeLeft: 'Time left:',
+    section: 'Section', submit: 'Submit',
+    confirmSubmit: 'Submit exam? You cannot edit answers after submitting.',
+    result: 'Results', score: 'Score:',
+    yourAnswer: 'Your answer:', correctAnswer: 'Correct answer:', noAnswer: '(No answer)',
+    retry: 'Retry', backToList: 'Choose Another',
+    types: { listening: 'Listening', reading: 'Reading', fill: 'Fill in Blank' },
   },
   challenge: {
     title: 'Vocabulary Challenge', selectLevel: 'Select HSK level to start:',
