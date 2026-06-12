@@ -28,7 +28,36 @@
       <p class="trophy">🏆</p>
       <p class="score-big">{{ store.result.score }} {{ $t('challenge.points') }}</p>
       <p class="best">{{ $t('challenge.bestScore') }} <strong>{{ store.result.best_score }}</strong></p>
-      <p class="correct-count">{{ $t('challenge.correct') }} {{ store.result.results.filter(r => r.correct).length }}/{{ store.result.results.length }} câu</p>
+      <p class="correct-count">
+        {{ $t('challenge.correct') }}
+        {{ store.result.results.filter(r => r.correct).length }}/{{ store.result.results.length }} câu
+      </p>
+
+      <div class="result-list">
+        <div v-for="(r, i) in store.result.results" :key="i" class="result-row">
+          <div class="result-hanzi">
+            <span class="rh-hanzi">{{ store.questions[i].hanzi }}</span>
+            <span class="rh-pinyin">{{ store.questions[i].pinyin }}</span>
+          </div>
+          <div class="result-answer">
+            <span v-if="store.answers[i].selected_index === -1" class="answer-timeout">
+              ⏱ Hết giờ → đúng:
+              <span class="correct-text">{{ store.questions[i].options[store.questions[i].correct_index] }}</span>
+            </span>
+            <span v-else-if="r.correct" class="answer-correct">
+              ✓ {{ store.questions[i].options[store.answers[i].selected_index] }}
+            </span>
+            <span v-else class="answer-wrong">
+              ✗ {{ store.questions[i].options[store.answers[i].selected_index] }}
+              → đúng: <span class="correct-text">{{ store.questions[i].options[store.questions[i].correct_index] }}</span>
+            </span>
+          </div>
+          <div class="result-score" :class="r.correct ? 'pts-correct' : 'pts-zero'">
+            +{{ r.score }} đ
+          </div>
+        </div>
+      </div>
+
       <button class="btn-retry" @click="store.reset()">{{ $t('challenge.playAgain') }}</button>
     </div>
   </div>
@@ -61,4 +90,18 @@ h2 { margin-bottom: 20px; }
 .score-big { font-size: 3rem; font-weight: 700; color: #d32f2f; margin-bottom: 8px; }
 .best, .correct-count { color: #666; margin-bottom: 6px; }
 .btn-retry { margin-top: 20px; padding: 12px 32px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+.result-list { margin: 24px 0 20px; text-align: left; max-height: 420px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
+.result-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
+.result-row:last-child { border-bottom: none; }
+.result-hanzi { min-width: 80px; }
+.rh-hanzi { font-size: 1.4rem; font-weight: 700; display: block; }
+.rh-pinyin { font-size: 0.75rem; color: #e65100; }
+.result-answer { flex: 1; font-size: 0.9rem; }
+.answer-correct { color: #2e7d32; font-weight: 600; }
+.answer-wrong { color: #c62828; }
+.answer-timeout { color: #888; }
+.correct-text { color: #2e7d32; font-weight: 600; }
+.result-score { min-width: 44px; text-align: right; font-weight: 700; font-size: 0.9rem; }
+.pts-correct { color: #2e7d32; }
+.pts-zero { color: #aaa; }
 </style>
